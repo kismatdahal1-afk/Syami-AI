@@ -17,7 +17,13 @@ const envSchema = z.object({
   OLLAMA_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.7),
   OLLAMA_NUM_PREDICT: z.coerce.number().int().positive().default(1024),
   OLLAMA_NUM_CTX: z.coerce.number().int().positive().default(4096),
+  OLLAMA_TOP_P: z.coerce.number().min(0).max(1).default(0.9),
+  OLLAMA_REPEAT_PENALTY: z.coerce.number().min(0).max(2).default(1.1),
   OLLAMA_TIMEOUT_MS: z.coerce.number().int().positive().default(60_000),
+  AI_STREAMING_ENABLED: z
+    .string()
+    .default('false')
+    .transform((value) => value === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);

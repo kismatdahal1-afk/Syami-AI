@@ -5,16 +5,17 @@ import { useBackendHealth } from '@/hooks/useBackendHealth';
 import { ThemeSwitch } from '@/components/common/ThemeSwitch';
 import { useActiveConversation, useChatStore } from '@/stores/chat.store';
 
-const STATUS_BADGE: Record<string, { label: string; variant: 'success' | 'danger' | 'info' }> = {
+const STATUS_BADGE: Record<string, { label: string; variant: 'success' | 'danger' | 'warning' | 'info' }> = {
   checking: { label: 'Connecting', variant: 'info' },
   online: { label: 'Ready', variant: 'success' },
+  'ai-offline': { label: 'AI offline', variant: 'warning' },
   offline: { label: 'Offline', variant: 'danger' },
 };
 
 export const ChatHeader = (): React.JSX.Element => {
   const active = useActiveConversation();
   const newChat = useChatStore((state) => state.newChat);
-  const { status } = useBackendHealth();
+  const { status, data } = useBackendHealth();
 
   const menuItems: DropdownItem[] = [
     {
@@ -33,7 +34,10 @@ export const ChatHeader = (): React.JSX.Element => {
     },
   ];
 
-  const badge = STATUS_BADGE[status];
+  // Backend reachable but Ollama down -> distinct "AI offline" state.
+  const effectiveStatus =
+    status === 'online' && data?.ai?.status === 'disconnected' ? 'ai-offline' : status;
+  const badge = STATUS_BADGE[effectiveStatus];
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-border bg-surface px-5">

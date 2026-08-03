@@ -10,15 +10,16 @@ apps/server/
 │   ├── schema.prisma        Conversation, Message, Settings models
 │   └── seed.ts              Demo data (settings + 3 conversations)
 └── src/
+    ├── ai/                Personality, branding, prompt & AI config system
     ├── config/
     │   ├── env.ts           Zod-validated environment variables
     │   ├── constants.ts     App name, version, API prefix/version
-    │   └── ai.ts            Centralized AI model configuration
+    │   └── ai.ts            Bridge to src/ai/ai-config.ts
     ├── controllers/         Thin request/response layer (no business logic)
     ├── routes/
     │   └── v1/              health, ai, chat, settings routers
     ├── services/            Business logic (chat, settings, health)
-    │   ├── ai/              Orchestration, prompt builder, reply fallback
+    │   ├── ai/              Orchestration, prompt bridge, reply fallback
     │   └── ollama/          Ollama HTTP client + typed errors (singleton)
     ├── middleware/          errorHandler, notFound, zod validation
     ├── database/            Prisma client + connection/error mapping
@@ -28,8 +29,8 @@ apps/server/
     └── server.ts            Bootstrapping
 ```
 
-See `docs/AI_INTEGRATION.md` for the full AI architecture, request flow, prompt
-builder, and testing instructions.
+See `docs/AI_INTEGRATION.md` for the AI transport architecture and
+`docs/ai-personality.md` for the Syami AI personality, branding, and rules.
 
 ## API flow
 
@@ -84,8 +85,10 @@ See `.env.example`. Required:
 - `PORT` (default 5000), `CORS_ORIGINS` (comma-separated allowed origins),
   `DB_CONNECT_ON_START` (optional eager connect; health check runs regardless)
 - Ollama: `OLLAMA_BASE_URL` (default `http://localhost:11434`), `OLLAMA_MODEL`
-  (default `qwen2.5:3b`), `OLLAMA_TEMPERATURE`, `OLLAMA_NUM_PREDICT`, `OLLAMA_NUM_CTX`,
-  `OLLAMA_TIMEOUT_MS` — loaded centrally via `src/config/ai.ts`
+  (default `qwen2.5:3b`), `OLLAMA_TEMPERATURE`, `OLLAMA_NUM_PREDICT`,
+  `OLLAMA_NUM_CTX`, `OLLAMA_TOP_P`, `OLLAMA_REPEAT_PENALTY`,
+  `OLLAMA_TIMEOUT_MS`, `AI_STREAMING_ENABLED` — loaded centrally via
+  `src/ai/ai-config.ts`
 
 ## Commands
 

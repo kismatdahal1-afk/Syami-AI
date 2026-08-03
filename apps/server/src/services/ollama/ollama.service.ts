@@ -29,6 +29,8 @@ export interface OllamaGenerateParams {
   temperature?: number;
   numPredict?: number;
   numCtx?: number;
+  topP?: number;
+  repeatPenalty?: number;
 }
 
 interface OllamaChatResponse {
@@ -139,6 +141,8 @@ export class OllamaService {
     if (params.temperature !== undefined) options.temperature = params.temperature;
     if (params.numPredict !== undefined) options.num_predict = params.numPredict;
     if (params.numCtx !== undefined) options.num_ctx = params.numCtx;
+    if (params.topP !== undefined) options.top_p = params.topP;
+    if (params.repeatPenalty !== undefined) options.repeat_penalty = params.repeatPenalty;
     return options;
   }
 

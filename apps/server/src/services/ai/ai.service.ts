@@ -5,7 +5,6 @@ import { OllamaError, OllamaTimeoutError } from '../ollama/errors.js';
 import type { PromptHistoryMessage } from './prompt.builder.js';
 import { buildChat } from './prompt.builder.js';
 import type { OllamaModel } from './ollama.service.js';
-
 export interface AiChatParams {
   /** Prior messages from the current conversation (conversational context). */
   history: PromptHistoryMessage[];
@@ -42,8 +41,10 @@ export class AiService {
         model: aiConfig.model,
         messages,
         temperature: aiConfig.temperature,
-        numPredict: aiConfig.numPredict,
-        numCtx: aiConfig.numCtx,
+        numPredict: aiConfig.maxTokens,
+        numCtx: aiConfig.contextWindow,
+        topP: aiConfig.topP,
+        repeatPenalty: aiConfig.repeatPenalty,
       });
     } catch (error) {
       if (error instanceof OllamaTimeoutError) throw aiTimeout(error.message);

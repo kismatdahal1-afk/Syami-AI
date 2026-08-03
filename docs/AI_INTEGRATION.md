@@ -16,10 +16,11 @@ apps/server/
 │   ├── schema.prisma              Conversation, Message, Settings models
 │   └── seed.ts                    Demo data
 └── src/
+    ├── ai/                        ✚ Personality, branding, prompt & config (Phase 6)
     ├── config/
     │   ├── env.ts                 Zod-validated env vars (incl. OLLAMA_*)
     │   ├── constants.ts           App name, version, API prefix/version
-    │   └── ai.ts                  ✚ Centralized model configuration (aiConfig)
+    │   └── ai.ts                  Bridge → src/ai/ai-config.ts
     ├── controllers/
     │   ├── chat.controller.ts
     │   ├── settings.controller.ts
@@ -39,7 +40,7 @@ apps/server/
     │   ├── index.ts
     │   ├── ai/
     │   │   ├── ai.service.ts      ✚ orchestration (build prompt, call Ollama, map errors)
-    │   │   ├── prompt.builder.ts  ✚ system prompt + history + current (memory-ready)
+    │   │   ├── prompt.builder.ts  ✚ bridge → src/ai/prompt-builder.ts
     │   │   ├── ollama.service.ts  ✚ re-export (single source in services/ollama)
     │   │   ├── reply.service.ts   Phase 4 mock — now offline fallback only
     │   │   └── index.ts
@@ -76,7 +77,7 @@ Three layers keep AI isolated from controllers and routes.
 | Layer | File | Responsibility |
 | --- | --- | --- |
 | Orchestration | `services/ai/ai.service.ts` | Build prompt, call Ollama, map typed errors to HTTP errors |
-| Prompting | `services/ai/prompt.builder.ts` | System prompt + conversation history + current message |
+| Prompting | `src/ai/prompt-builder.ts` + `system-prompt.ts` | Identity/branding prompt + conversation history + current message |
 | Transport | `services/ollama/ollama.service.ts` | HTTP client for the Ollama API (axios) |
 
 The transport is instantiated once as a singleton in `services/ollama/index.ts` and
@@ -125,7 +126,7 @@ chat.service.sendMessage
     2. load prior messages from the conversation  ← Task 5 context
     3. persist the user message
     4. aiService.chat({ history, message })
-         prompt.builder.buildChat → [system, ...history, user]
+         prompt-builder.buildChat → [system, ...history, user]
          ollamaService.generate   → Ollama POST /api/chat
     5. persist the assistant reply, touch updatedAt
     6. return { conversationId, reply }
@@ -153,21 +154,28 @@ messages remain masked.
 
 ## 4. Prompt builder
 
-`services/ai/prompt.builder.ts` keeps all prompt logic in the backend, away from API
-routes and frontend.
+The prompt system lives in `src/ai/` (Phase 6): `system-prompt.ts` assembles
+the Syami AI identity prompt (branding, personality, language rules, response
+rules, future features), and `prompt-builder.ts` returns the Ollama message
+array `[system, ...history, current]` with an automatic language hint.
 
-- `SYAMI_SYSTEM_PROMPT` — defines the Syami AI persona; bilingual instruction
-  (answer in the language the user writes: English or Nepali); wants Markdown output.
+- `SYSTEM_PROMPT` — defines the Syami AI persona; bilingual instruction
+  (answer in the language the user writes: English or Nepali); wants Markdown
+  output.
 - `buildChat({ system?, history, current, memory? })` returns the Ollama message
   array `[system, ...history, current]`.
-- `memory` is defined and documented but unused in Phase 5, so long-term memory can
-  be added later without changing the prompt format.
+- `memory` is defined and documented but unused in Phase 6, so long-term memory
+  can be added later without changing the prompt format.
+
+See `docs/ai-personality.md` for the full personality, branding, language, and
+response-rule architecture.
 
 ---
 
 ## 5. Configuration variables
 
-Centralized in `src/config/ai.ts` via `aiConfig`. All values come from `.env`
+Centralized in `src/ai/ai-config.ts` via `aiConfig` (`src/config/ai.ts` is a
+bridge). All values come from `.env`
 (see `apps/server/.env.example`), never hardcoded in the codebase.
 
 | Variable | Default | Purpose |
@@ -177,7 +185,10 @@ Centralized in `src/config/ai.ts` via `aiConfig`. All values come from `.env`
 | `OLLAMA_TEMPERATURE` | `0.7` | Generation temperature (0–2) |
 | `OLLAMA_NUM_PREDICT` | `1024` | Max tokens per reply (Ollama `num_predict`) |
 | `OLLAMA_NUM_CTX` | `4096` | Context window size (Ollama `num_ctx`) |
+| `OLLAMA_TOP_P` | `0.9` | Nucleus sampling (Ollama `top_p`) |
+| `OLLAMA_REPEAT_PENALTY` | `1.1` | Repetition penalty (Ollama `repeat_penalty`) |
 | `OLLAMA_TIMEOUT_MS` | `60000` | Per-request timeout for the Ollama client |
+| `AI_STREAMING_ENABLED` | `false` | Streaming responses (reserved for the streaming phase) |
 
 ---
 
