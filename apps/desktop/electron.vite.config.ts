@@ -16,6 +16,9 @@ export default defineConfig({
         '@': resolve('src/renderer/src'),
       },
     },
+    optimizeDeps: {
+      exclude: ['@syami/ui'],
+    },
     plugins: [react(), tailwindcss()],
   },
 });
