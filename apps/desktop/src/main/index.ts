@@ -1,5 +1,19 @@
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { app, BrowserWindow, shell } from 'electron';
+
+/** Resolve the Syami AI logo for the window icon across dev + build layouts. */
+const resolveAppIcon = (): string | undefined => {
+  const candidates = [
+    // .ico used by electron-builder (best for Windows window/taskbar icon)
+    join(app.getAppPath(), 'build/logo.ico'),
+    // electron-vite build output (out/main -> out/renderer)
+    join(__dirname, '../renderer/assets/images/logo/syami-logo.png'),
+    // vite public dir during `npm run dev`
+    join(app.getAppPath(), 'src/renderer/public/assets/images/logo/syami-logo.png'),
+  ];
+  return candidates.find((candidate) => existsSync(candidate));
+};
 
 const createMainWindow = (): void => {
   const mainWindow = new BrowserWindow({
@@ -9,7 +23,8 @@ const createMainWindow = (): void => {
     minHeight: 640,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor: '#0b1120',
+    backgroundColor: '#070b1a',
+    icon: resolveAppIcon(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,

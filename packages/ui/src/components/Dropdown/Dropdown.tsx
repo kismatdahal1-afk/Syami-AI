@@ -20,16 +20,20 @@ export interface DropdownProps {
   trigger: React.ReactNode
   items: DropdownItem[]
   align?: 'left' | 'right'
+  hideCaret?: boolean
   onOpenChange?: (open: boolean) => void
   className?: string
+  triggerClassName?: string
 }
 
 export const Dropdown = ({
   trigger,
   items,
   align = 'right',
+  hideCaret = false,
   onOpenChange,
-  className
+  className,
+  triggerClassName,
 }: DropdownProps): React.JSX.Element => {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -76,10 +80,10 @@ export const Dropdown = ({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpenState(!open)}
-        className="flex items-center gap-1.5"
+        className={cn('flex items-center gap-1.5', triggerClassName)}
       >
         {trigger}
-        <ChevronDown size={14} className="text-muted-foreground" />
+        {!hideCaret && <ChevronDown size={14} className="text-muted-foreground" />}
       </button>
       <AnimatePresence>
         {open && (

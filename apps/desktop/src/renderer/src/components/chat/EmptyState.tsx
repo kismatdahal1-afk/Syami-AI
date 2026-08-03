@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Icon } from '@syami/ui';
+import { SyamiLogo } from '@/components/common/SyamiLogo';
 import { EXAMPLE_PROMPTS } from '@/data/mockChat';
 
 interface EmptyStateProps {
@@ -21,8 +22,8 @@ export const EmptyState = ({ onPrompt }: EmptyStateProps): React.JSX.Element => 
         transition={{ duration: 0.35, ease: 'easeOut' }}
         className="relative flex flex-col items-center gap-6"
       >
-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/12 text-primary ring-1 ring-primary/25">
-          <Icon icon={Sparkles} size={26} />
+        <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/12 ring-1 ring-primary/25">
+          <SyamiLogo className="h-10 w-10" alt="Syami AI" />
         </span>
 
         <div className="text-center">

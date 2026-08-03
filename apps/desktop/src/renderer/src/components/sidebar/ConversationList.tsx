@@ -8,6 +8,8 @@ interface ConversationListProps {
   conversations: Conversation[];
   activeConversationId: string | null;
   onSelect: (id: string) => void;
+  onRename: (id: string, title: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
 }
 
 const STAGGER = 0.04;
@@ -16,9 +18,11 @@ export const ConversationList = ({
   conversations,
   activeConversationId,
   onSelect,
+  onRename,
+  onDelete,
 }: ConversationListProps): React.JSX.Element => {
   return (
-    <nav aria-label="Conversation history" className="flex flex-col gap-1">
+    <nav aria-label="Conversation history" className="flex flex-col gap-0.5">
       <AnimatePresence initial={false}>
         {conversations.length === 0 && (
           <motion.p
@@ -45,6 +49,8 @@ export const ConversationList = ({
               conversation={conversation}
               active={conversation.id === activeConversationId}
               onSelect={onSelect}
+              onRename={onRename}
+              onDelete={onDelete}
             />
           </motion.div>
         ))}

@@ -2,6 +2,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import { cn } from '@syami/ui';
+import { CopyCodeButton } from './code/CopyCodeButton';
 
 interface MarkdownRendererProps {
   content: string;
@@ -27,17 +28,22 @@ const components: Components = {
   hr: () => <hr className="my-4 border-border" />,
   strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
   em: ({ children }) => <em className="italic">{children}</em>,
-  pre: ({ children }) => (
-    <pre className="my-3 overflow-hidden rounded-lg border border-border bg-muted/40">{children}</pre>
-  ),
+  pre: ({ children, ...rest }) => {
+    const text = extractPreText(children);
+    return (
+      <div className="group/code relative my-3 overflow-hidden rounded-lg border border-border bg-muted/40">
+        <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed" {...rest}>
+          {children}
+        </pre>
+        {text && <CopyCodeButton text={text} className="absolute right-2 top-2" />}
+      </div>
+    );
+  },
   code: ({ className, children, ...rest }) => {
     const isBlock = className?.includes('language-') ?? false;
     if (isBlock) {
       return (
-        <code
-          className={cn('block overflow-x-auto px-4 py-3 text-[13px] leading-relaxed', className)}
-          {...rest}
-        >
+        <code className={cn('block', className)} {...rest}>
           {children}
         </code>
       );
@@ -60,6 +66,16 @@ const components: Components = {
     <th className="border-b border-border bg-muted/40 px-3 py-2 text-left font-semibold">{children}</th>
   ),
   td: ({ children }) => <td className="border-b border-border/60 px-3 py-2">{children}</td>,
+};
+
+const extractPreText = (node: React.ReactNode): string => {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractPreText).join('');
+  if (node && typeof node === 'object' && 'props' in node) {
+    const props = (node as { props: { children?: React.ReactNode } }).props;
+    return extractPreText(props.children);
+  }
+  return '';
 };
 
 export const MarkdownRenderer = ({ content, className }: MarkdownRendererProps): React.JSX.Element => (

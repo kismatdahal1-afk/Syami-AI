@@ -19,16 +19,14 @@ const ChatPage = (): React.JSX.Element => {
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-h-0 flex-col">
       {error && <OfflineNotice message={error} />}
       {active && active.messages.length > 0 ? (
-        <>
-          <MessageList messages={active.messages} isSending={isSending} />
-          <ChatInput />
-        </>
+        <MessageList messages={active.messages} isSending={isSending} />
       ) : (
         <EmptyState onPrompt={handlePrompt} />
       )}
+      <ChatInput />
     </div>
   );
 };

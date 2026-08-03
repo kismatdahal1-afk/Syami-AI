@@ -1,7 +1,7 @@
 import { cn } from '../../lib/cn'
 import { Loading } from '../Loading'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +16,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80',
+  accent: 'bg-accent text-accent-foreground hover:bg-accent/90 active:bg-accent/80',
   secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70',
   ghost: 'text-foreground hover:bg-muted active:bg-muted/80',
   danger: 'bg-error text-error-foreground hover:bg-error/90 active:bg-error/80'

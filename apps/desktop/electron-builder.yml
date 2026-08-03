@@ -1,0 +1,30 @@
+appId: ai.syami.desktop
+productName: Syami AI
+copyright: Copyright © 2026 Kismat Dahal
+
+electronVersion: 43.2.0
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - out/**
+  - package.json
+
+asar: true
+
+win:
+  icon: build/logo.ico
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Syami AI
+  artifactName: ${productName}-Setup-${version}.${ext}

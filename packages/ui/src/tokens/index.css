@@ -75,46 +75,62 @@
 
 /* ---------------------------------------------------------------
  * DARK THEME (class-based, applied via .dark on <html>)
+ * Cyberpunk glass-neon: deep indigo night, neon indigo/cyan glow,
+ * frosted translucent surfaces.
  * ------------------------------------------------------------- */
 :where(.dark) {
-  --color-primary: #818cf8;
+  --color-primary: #a78bfa;
   --color-primary-foreground: #0b1120;
-  --color-primary-subtle: rgb(129 140 248 / 0.14);
+  --color-primary-subtle: rgb(167 139 250 / 0.16);
 
   --color-accent: #22d3ee;
   --color-accent-foreground: #04131a;
-  --color-accent-subtle: rgb(34 211 238 / 0.12);
+  --color-accent-subtle: rgb(34 211 238 / 0.14);
 
-  --color-secondary: #1e293b;
+  --color-secondary: #1e2440;
   --color-secondary-foreground: #e2e8f0;
 
-  --color-background: #0b1120;
+  --color-background: #070b1a;
   --color-foreground: #e2e8f0;
-  --color-surface: #111827;
+  --color-surface: rgb(17 24 43 / 0.72);
   --color-surface-foreground: #e2e8f0;
-  --color-surface-elevated: #1e293b;
-  --color-muted: #1e293b;
+  --color-surface-elevated: #1b2140;
+
+  --color-muted: rgb(30 38 66 / 0.85);
   --color-muted-foreground: #94a3b8;
 
-  --color-border: #1e293b;
-  --color-input: #334155;
-  --color-ring: #818cf8;
+  --color-border: rgb(99 102 241 / 0.22);
+  --color-input: #33407a;
+  --color-ring: #a78bfa;
 
   --color-error: #f87171;
   --color-error-foreground: #0b1120;
-  --color-error-subtle: rgb(248 113 113 / 0.12);
+  --color-error-subtle: rgb(248 113 113 / 0.14);
   --color-success: #34d399;
   --color-success-foreground: #04140d;
-  --color-success-subtle: rgb(52 211 153 / 0.12);
+  --color-success-subtle: rgb(52 211 153 / 0.14);
   --color-warning: #fbbf24;
   --color-warning-foreground: #161003;
-  --color-warning-subtle: rgb(251 191 36 / 0.12);
+  --color-warning-subtle: rgb(251 191 36 / 0.14);
   --color-info: #60a5fa;
   --color-info-foreground: #081120;
-  --color-info-subtle: rgb(96 165 250 / 0.12);
+  --color-info-subtle: rgb(96 165 250 / 0.14);
 
-  --shadow-glow-primary: 0 0 28px -6px rgb(129 140 248 / 0.5);
-  --shadow-glow-accent: 0 0 28px -6px rgb(34 211 238 / 0.5);
+  --shadow-glow-primary: 0 0 28px -6px rgb(167 139 250 / 0.55);
+  --shadow-glow-accent: 0 0 28px -6px rgb(34 211 238 / 0.55);
+  --shadow-glow-soft: 0 0 16px -4px rgb(99 102 241 / 0.35);
+}
+
+/* Smooth theme transitions across surfaces, borders and text */
+:where(:root, .dark) {
+  body,
+  body *,
+  body *::before,
+  body *::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+  }
 }
 
 /* ---------------------------------------------------------------

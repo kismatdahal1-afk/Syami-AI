@@ -18,7 +18,7 @@ export const MessageList = ({ messages, isSending }: MessageListProps): React.JS
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [messages.length, isSending]);
+  }, [messages, isSending]);
 
   return (
     <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">

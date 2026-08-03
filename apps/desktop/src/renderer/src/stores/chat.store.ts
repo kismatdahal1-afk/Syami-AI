@@ -44,6 +44,8 @@ interface ChatState {
   selectConversation: (id: string) => Promise<void>;
   newChat: () => void;
   sendMessage: (content: string) => Promise<boolean>;
+  renameConversation: (id: string, title: string) => Promise<boolean>;
+  deleteConversation: (id: string) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -97,6 +99,14 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   },
 
   newChat: () => {
+    const { activeConversationId, conversations } = get();
+    const current = conversations.find((conversation) => conversation.id === activeConversationId);
+
+    if (current && current.messages.length === 0) {
+      set({ activeConversationId: current.id, isSending: false, error: null });
+      return;
+    }
+
     const now = Date.now();
     const conversation: Conversation = {
       id: `local-conv-${now}`,
@@ -198,6 +208,63 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       }));
       return false;
     }
+  },
+
+  renameConversation: async (id, title) => {
+    const trimmed = title.trim();
+    if (!trimmed) return false;
+
+    const existing = get().conversations.find((conversation) => conversation.id === id);
+    if (!existing) return false;
+
+    if (existing.local) {
+      set((state) => ({
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === id ? { ...conversation, title: trimmed } : conversation,
+        ),
+      }));
+      return true;
+    }
+
+    try {
+      const summary = await apiClient.renameConversation(id, trimmed);
+      set((state) => ({
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === id ? { ...conversation, title: summary.title } : conversation,
+        ),
+      }));
+      return true;
+    } catch (error) {
+      set({ error: errorMessage(error) });
+      return false;
+    }
+  },
+
+  deleteConversation: async (id) => {
+    const existing = get().conversations.find((conversation) => conversation.id === id);
+    if (!existing) return false;
+
+    const remaining = get().conversations.filter((conversation) => conversation.id !== id);
+    const nextActive =
+      get().activeConversationId === id
+        ? (remaining[0]?.id ?? null)
+        : get().activeConversationId;
+
+    try {
+      if (!existing.local) {
+        await apiClient.deleteConversation(id);
+      }
+    } catch (error) {
+      set({ error: errorMessage(error) });
+      return false;
+    }
+
+    set({
+      conversations: remaining,
+      activeConversationId: nextActive,
+      error: null,
+    });
+    return true;
   },
 
   clearError: () => set({ error: null }),

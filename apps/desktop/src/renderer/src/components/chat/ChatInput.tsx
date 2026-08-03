@@ -1,14 +1,16 @@
 import { useRef, useState } from 'react';
 import { Mic, Paperclip, Send } from 'lucide-react';
 import { Button, Icon, Tooltip } from '@syami/ui';
-import { useChatStore } from '@/stores/chat.store';
+import { useActiveConversation, useChatStore } from '@/stores/chat.store';
 import { cn } from '@syami/ui';
 
 const MAX_HEIGHT = 160;
 
 export const ChatInput = (): React.JSX.Element => {
+  const active = useActiveConversation();
   const isSending = useChatStore((state) => state.isSending);
   const sendMessage = useChatStore((state) => state.sendMessage);
+  const newChat = useChatStore((state) => state.newChat);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState('');
 
@@ -24,6 +26,7 @@ export const ChatInput = (): React.JSX.Element => {
 
   const handleSend = async (): Promise<void> => {
     if (!canSend) return;
+    if (!active) newChat();
     const sent = await sendMessage(trimmed);
     if (sent) {
       setText('');
@@ -54,14 +57,14 @@ export const ChatInput = (): React.JSX.Element => {
           ref={textareaRef}
           value={text}
           rows={1}
-          placeholder="Ask Syami AI anything…"
-          disabled={isSending}
+          placeholder={isSending ? 'Syami AI is answering… you can keep typing' : 'Ask Syami AI anything…'}
           onChange={(event) => {
             setText(event.target.value);
             autoGrow();
           }}
           onKeyDown={handleKeyDown}
-          className="max-h-40 min-w-0 flex-1 resize-none bg-transparent py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          aria-busy={isSending}
+          className="max-h-40 min-w-0 flex-1 resize-none bg-transparent py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
           style={{ height: 'auto' }}
         />
 
