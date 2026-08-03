@@ -22,20 +22,22 @@ export const ChatInput = (): React.JSX.Element => {
     el.style.height = `${Math.min(el.scrollHeight, MAX_HEIGHT)}px`;
   };
 
-  const handleSend = (): void => {
+  const handleSend = async (): Promise<void> => {
     if (!canSend) return;
-    sendMessage(trimmed);
-    setText('');
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = 'auto';
+    const sent = await sendMessage(trimmed);
+    if (sent) {
+      setText('');
+      const el = textareaRef.current;
+      if (el) {
+        el.style.height = 'auto';
+      }
     }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>): void => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
-      handleSend();
+      void handleSend();
     }
   };
 
@@ -89,7 +91,7 @@ export const ChatInput = (): React.JSX.Element => {
         </Button>
       </div>
       <p className="mx-auto mt-2 max-w-3xl px-1 text-center text-[11px] text-muted-foreground">
-        Syami AI is a UI preview — replies are mock data. Enter to send · Shift+Enter for a new line
+        Enter to send · Shift+Enter for a new line
       </p>
     </div>
   );

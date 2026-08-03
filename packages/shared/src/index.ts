@@ -29,4 +29,8 @@ export interface HealthData {
   version: string;
   timestamp: string;
   uptime: number;
+  /** Present from Phase 4: reflects live MongoDB connectivity. */
+  database?: {
+    status: 'connected' | 'disconnected';
+  };
 }

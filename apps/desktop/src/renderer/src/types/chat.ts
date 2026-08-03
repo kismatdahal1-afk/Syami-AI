@@ -13,4 +13,8 @@ export interface Conversation {
   createdAt: number;
   updatedAt: number;
   messages: ChatMessage[];
+  /** true once messages have been fetched from the backend */
+  messagesLoaded: boolean;
+  /** true for conversations created locally that have not been persisted yet */
+  local?: boolean;
 }

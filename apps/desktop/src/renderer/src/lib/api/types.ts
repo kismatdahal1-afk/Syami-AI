@@ -15,6 +15,7 @@ export interface ChatResponse {
 export interface ConversationSummary {
   id: string;
   title: string;
+  createdAt: string;
   updatedAt: string;
 }
 
@@ -25,11 +26,19 @@ export interface MessageItem {
   createdAt: string;
 }
 
+export interface ConversationItem extends ConversationSummary {
+  messages: MessageItem[];
+}
+
 export interface AiStatus {
   running: boolean;
   version?: string;
 }
 
-export type SettingsResponse = Record<string, unknown>;
+export interface SettingsResponse {
+  theme: string;
+  language: 'en' | 'ne';
+  createdAt: string;
+}
 
 export type ApiResponseEnvelope<T> = ApiResponse<T>;

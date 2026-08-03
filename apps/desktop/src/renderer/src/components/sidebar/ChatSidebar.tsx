@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { ChevronRight, Home, Settings, Sparkles } from 'lucide-react';
 import { APP_VERSION } from '@syami/shared';
@@ -19,8 +19,14 @@ const NAV_LINK_CLASSES = ({ isActive }: { isActive: boolean }): string =>
 export const ChatSidebar = (): React.JSX.Element => {
   const conversations = useChatStore((state) => state.conversations);
   const activeConversationId = useChatStore((state) => state.activeConversationId);
+  const isLoadingHistory = useChatStore((state) => state.isLoadingHistory);
+  const loadHistory = useChatStore((state) => state.loadHistory);
   const newChat = useChatStore((state) => state.newChat);
   const selectConversation = useChatStore((state) => state.selectConversation);
+
+  useEffect(() => {
+    void loadHistory();
+  }, [loadHistory]);
 
   const [query, setQuery] = useState('');
 
@@ -46,7 +52,7 @@ export const ChatSidebar = (): React.JSX.Element => {
       </div>
 
       <div className="flex flex-col gap-3 px-4 pb-4">
-        <NewChatButton onClick={newChat} />
+        <NewChatButton onClick={newChat} disabled={isLoadingHistory} />
         <SearchChats query={query} onChange={setQuery} onClear={() => setQuery('')} />
       </div>
 
@@ -57,7 +63,7 @@ export const ChatSidebar = (): React.JSX.Element => {
         <ConversationList
           conversations={filtered}
           activeConversationId={activeConversationId}
-          onSelect={selectConversation}
+          onSelect={(id) => void selectConversation(id)}
         />
       </div>
 

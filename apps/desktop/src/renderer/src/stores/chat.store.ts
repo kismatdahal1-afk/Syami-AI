@@ -1,109 +1,207 @@
 import { create } from 'zustand';
-import { pickReply, seedConversations } from '../data/mockChat';
-import { titleFromText } from '../lib/format';
-import type { ChatMessage, Conversation } from '../types/chat';
+import { apiClient } from '@/lib/api';
+import { titleFromText } from '@/lib/format';
+import type { ConversationItem, ConversationSummary, MessageItem } from '@/lib/api/types';
+import type { ChatMessage, Conversation } from '@/types/chat';
 
-const REPLY_DELAY_MS = 1100;
+const errorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : 'Something went wrong';
 
-let messageSequence = 0;
-const nextMessageId = (): string => {
-  messageSequence += 1;
-  return `m-${Date.now()}-${messageSequence}`;
-};
+const toTimestamp = (iso: string): number => new Date(iso).getTime();
+
+const toMessage = (message: MessageItem): ChatMessage => ({
+  id: message.id,
+  role: message.role,
+  content: message.content,
+  createdAt: toTimestamp(message.createdAt),
+});
+
+const fromSummary = (summary: ConversationSummary): Conversation => ({
+  id: summary.id,
+  title: summary.title,
+  createdAt: toTimestamp(summary.createdAt),
+  updatedAt: toTimestamp(summary.updatedAt),
+  messages: [],
+  messagesLoaded: false,
+});
+
+const fromDetail = (detail: ConversationItem): Conversation => ({
+  id: detail.id,
+  title: detail.title,
+  createdAt: toTimestamp(detail.createdAt),
+  updatedAt: toTimestamp(detail.updatedAt),
+  messages: detail.messages.map(toMessage),
+  messagesLoaded: true,
+});
 
 interface ChatState {
   conversations: Conversation[];
   activeConversationId: string | null;
   isSending: boolean;
+  isLoadingHistory: boolean;
+  error: string | null;
+  loadHistory: () => Promise<void>;
+  selectConversation: (id: string) => Promise<void>;
   newChat: () => void;
-  selectConversation: (id: string) => void;
-  sendMessage: (content: string) => void;
+  sendMessage: (content: string) => Promise<boolean>;
+  clearError: () => void;
 }
 
-const createEmptyConversation = (): Conversation => {
-  const now = Date.now();
-  return {
-    id: `conv-${now}`,
-    title: 'New chat',
-    createdAt: now,
-    updatedAt: now,
-    messages: [],
-  };
+let optimisticSequence = 0;
+const nextOptimisticId = (): string => {
+  optimisticSequence += 1;
+  return `local-msg-${Date.now()}-${optimisticSequence}`;
 };
 
-export const useChatStore = create<ChatState>()((set, get) => {
-  const seeded = seedConversations();
+export const useChatStore = create<ChatState>()((set, get) => ({
+  conversations: [],
+  activeConversationId: null,
+  isSending: false,
+  isLoadingHistory: false,
+  error: null,
 
-  return {
-    conversations: seeded,
-    activeConversationId: seeded[0]?.id ?? null,
-    isSending: false,
-
-    newChat: () => {
-      const conversation = createEmptyConversation();
+  loadHistory: async () => {
+    set({ isLoadingHistory: true, error: null });
+    try {
+      const summaries = await apiClient.getChatHistory();
       set((state) => ({
-        conversations: [conversation, ...state.conversations],
-        activeConversationId: conversation.id,
-        isSending: false,
+        conversations: summaries.map(fromSummary),
+        isLoadingHistory: false,
+        activeConversationId:
+          state.activeConversationId && summaries.some((c) => c.id === state.activeConversationId)
+            ? state.activeConversationId
+            : (summaries[0]?.id ?? null),
       }));
-    },
+    } catch (error) {
+      set({ isLoadingHistory: false, error: errorMessage(error) });
+    }
+  },
 
-    selectConversation: (id) => set({ activeConversationId: id }),
+  selectConversation: async (id) => {
+    const existing = get().conversations.find((conversation) => conversation.id === id);
+    if (!existing) return;
 
-    sendMessage: (content) => {
-      const { activeConversationId, isSending } = get();
-      if (!activeConversationId || isSending) return;
-      const trimmed = content.trim();
-      if (!trimmed) return;
+    set({ activeConversationId: id, error: null });
+    if (existing.local || existing.messagesLoaded) return;
 
-      const now = Date.now();
-      const userMessage: ChatMessage = {
-        id: nextMessageId(),
-        role: 'user',
-        content: trimmed,
-        createdAt: now,
+    try {
+      const detail = await apiClient.getConversation(id);
+      set((state) => ({
+        conversations: state.conversations.map((conversation) =>
+          conversation.id === id ? fromDetail(detail) : conversation,
+        ),
+      }));
+    } catch (error) {
+      set({ error: errorMessage(error) });
+    }
+  },
+
+  newChat: () => {
+    const now = Date.now();
+    const conversation: Conversation = {
+      id: `local-conv-${now}`,
+      title: 'New chat',
+      createdAt: now,
+      updatedAt: now,
+      messages: [],
+      messagesLoaded: true,
+      local: true,
+    };
+    set((state) => ({
+      conversations: [conversation, ...state.conversations],
+      activeConversationId: conversation.id,
+      isSending: false,
+      error: null,
+    }));
+  },
+
+  sendMessage: async (content) => {
+    const { activeConversationId, isSending, conversations } = get();
+    if (!activeConversationId || isSending) return false;
+
+    const trimmed = content.trim();
+    if (!trimmed) return false;
+
+    const activeConversation = conversations.find((c) => c.id === activeConversationId);
+    if (!activeConversation) return false;
+
+    const now = Date.now();
+    const userMessage: ChatMessage = {
+      id: nextOptimisticId(),
+      role: 'user',
+      content: trimmed,
+      createdAt: now,
+    };
+
+    const isLocalConversation = activeConversation.local === true;
+
+    set((state) => ({
+      isSending: true,
+      error: null,
+      conversations: state.conversations.map((conversation) => {
+        if (conversation.id !== activeConversationId) return conversation;
+        return {
+          ...conversation,
+          updatedAt: now,
+          title: isLocalConversation ? titleFromText(trimmed) : conversation.title,
+          messages: [...conversation.messages, userMessage],
+        };
+      }),
+    }));
+
+    try {
+      const response = await apiClient.sendChatMessage({
+        conversationId: isLocalConversation ? undefined : activeConversationId,
+        message: trimmed,
+      });
+
+      const serverId = response.conversationId;
+      const replyAt = Date.now();
+      const replyMessage: ChatMessage = {
+        id: `server-reply-${replyAt}`,
+        role: 'assistant',
+        content: response.reply,
+        createdAt: replyAt,
       };
 
       set((state) => ({
-        isSending: true,
+        isSending: false,
+        activeConversationId:
+          state.activeConversationId === activeConversationId
+            ? serverId
+            : state.activeConversationId,
         conversations: state.conversations.map((conversation) => {
           if (conversation.id !== activeConversationId) return conversation;
-          const isFirstMessage = conversation.messages.length === 0;
           return {
             ...conversation,
-            title: isFirstMessage ? titleFromText(trimmed) : conversation.title,
-            updatedAt: now,
-            messages: [...conversation.messages, userMessage],
+            id: serverId,
+            local: false,
+            messagesLoaded: true,
+            updatedAt: replyAt,
+            messages: [...conversation.messages, replyMessage],
           };
         }),
       }));
 
-      window.setTimeout(() => {
-        const reply: ChatMessage = {
-          id: nextMessageId(),
-          role: 'assistant',
-          content: pickReply(),
-          createdAt: Date.now(),
-        };
+      return true;
+    } catch (error) {
+      set((state) => ({
+        isSending: false,
+        error: errorMessage(error),
+        conversations: state.conversations.map((conversation) => {
+          if (conversation.id !== activeConversationId) return conversation;
+          return {
+            ...conversation,
+            messages: conversation.messages.filter((message) => message.id !== userMessage.id),
+          };
+        }),
+      }));
+      return false;
+    }
+  },
 
-        set((state) => ({
-          isSending: false,
-          conversations: state.conversations.map((conversation) => {
-            if (conversation.id !== state.activeConversationId) return conversation;
-            return {
-              ...conversation,
-              updatedAt: reply.createdAt,
-              messages: [...conversation.messages, reply],
-            };
-          }),
-        }));
-      }, REPLY_DELAY_MS);
-    },
-  };
-});
+  clearError: () => set({ error: null }),
+}));
 
 export const useActiveConversation = (): Conversation | null =>
-  useChatStore((state) => {
-    const active = state.conversations.find((conversation) => conversation.id === state.activeConversationId);
-    return active ?? null;
-  });
+  useChatStore((state) => state.conversations.find((c) => c.id === state.activeConversationId) ?? null);
