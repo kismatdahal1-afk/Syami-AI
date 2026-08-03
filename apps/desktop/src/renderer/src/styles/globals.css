@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-accent: #6366f1;
+  --color-muted: #64748b;
+}
+
+:where(.dark) {
+  --color-background: #0b1120;
+  --color-surface: #111827;
+  --color-border: #1e293b;
+  --color-accent: #818cf8;
+  --color-muted: #94a3b8;
+}
+
+body {
+  @apply bg-background text-slate-900 antialiased;
+}
+
+:where(.dark) body {
+  @apply bg-background text-slate-100;
+}

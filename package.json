@@ -1,0 +1,40 @@
+{
+  "name": "syami-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Syami AI - Modern desktop AI assistant (monorepo: Electron + React + Express + MongoDB Atlas + Ollama)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,desktop -c blue,magenta \"npm run dev:server\" \"npm run dev:desktop\"",
+    "dev:server": "npm run dev --workspace @syami/server",
+    "dev:desktop": "npm run dev --workspace @syami/desktop",
+    "build": "npm run build --workspace @syami/server && npm run build --workspace @syami/desktop",
+    "build:server": "npm run build --workspace @syami/server",
+    "build:desktop": "npm run build --workspace @syami/desktop",
+    "typecheck": "npm run typecheck --workspaces",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prisma:generate": "npm run prisma:generate --workspace @syami/server"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.1.2",
+    "concurrently": "^10.0.4",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0"
+  },
+  "overrides": {
+    "vite": "7.3.6"
+  }
+}

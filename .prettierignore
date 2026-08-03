@@ -1,0 +1,6 @@
+node_modules
+dist
+out
+*.svg
+package-lock.json
+apps/server/prisma/migrations

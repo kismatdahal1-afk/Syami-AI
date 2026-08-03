@@ -1,0 +1,11 @@
+// Syami AI - Prisma schema
+// Phase 1: configuration only. Database models are planned for Phase 6.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
