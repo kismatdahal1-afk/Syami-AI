@@ -8,7 +8,7 @@ import type {
   MessageOut,
   SendMessageResult,
 } from '../types/chat.js';
-import { generateMockReply } from './ai/reply.service.js';
+import { aiService } from './ai/index.js';
 
 const TITLE_MAX = 44;
 
@@ -66,12 +66,19 @@ export const getMessages = async (conversationId: string): Promise<ConversationO
   }
 };
 
+/**
+ * Phase 5 flow:
+ * 1. ensure conversation exists (create with a title derived from the message)
+ * 2. load prior messages from the conversation (conversational context)
+ * 3. persist the user message
+ * 4. generate the AI reply (prompt builder -> Ollama)
+ * 5. persist the assistant reply and touch updatedAt
+ */
 export const sendMessage = async (input: {
   conversationId?: string;
   message: string;
 }): Promise<SendMessageResult> => {
   try {
-    const reply = generateMockReply();
     const now = new Date();
 
     let conversationId = input.conversationId;
@@ -90,8 +97,26 @@ export const sendMessage = async (input: {
       if (!exists) throw notFound('Conversation not found');
     }
 
+    const previousMessages = await prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'asc' },
+      select: { role: true, content: true },
+    });
+
     await prisma.message.create({
       data: { conversationId, role: 'user', content: input.message },
+    });
+
+    const reply = await aiService.chat({
+      history: previousMessages.map((message) => ({
+        role: message.role,
+        content: message.content,
+      })),
+      message: input.message,
+    });
+
+    await prisma.message.create({
+      data: { conversationId, role: 'assistant', content: reply },
     });
     await prisma.conversation.update({
       where: { id: conversationId },

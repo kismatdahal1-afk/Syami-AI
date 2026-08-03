@@ -4,6 +4,7 @@ import { failure } from '../utils/ApiResponse.js';
 
 interface HttpError extends Error {
   status?: number;
+  expose?: boolean;
 }
 
 export const errorHandler = (
@@ -18,8 +19,10 @@ export const errorHandler = (
     console.error(`[error] ${err.message}`, err.stack);
   }
 
+  const message = status >= 500 && !err.expose ? 'Internal server error' : err.message;
+
   res.status(status).json(
-    failure(status >= 500 ? 'Internal server error' : err.message, {
+    failure(message, {
       ...(env.NODE_ENV !== 'production' ? { stack: err.stack } : {}),
     }),
   );

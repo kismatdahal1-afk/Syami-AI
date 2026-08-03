@@ -33,4 +33,9 @@ export interface HealthData {
   database?: {
     status: 'connected' | 'disconnected';
   };
+  /** Present from Phase 5: reflects live Ollama connectivity. */
+  ai?: {
+    status: 'connected' | 'disconnected';
+    model: string;
+  };
 }

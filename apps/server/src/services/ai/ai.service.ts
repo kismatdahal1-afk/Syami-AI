@@ -1,33 +1,69 @@
+import { aiConfig } from '../../config/ai.js';
+import { aiTimeout, aiUnavailable } from '../../utils/errors.js';
 import { ollamaService } from '../ollama/index.js';
+import { OllamaError, OllamaTimeoutError } from '../ollama/errors.js';
+import type { PromptHistoryMessage } from './prompt.builder.js';
+import { buildChat } from './prompt.builder.js';
+import type { OllamaModel } from './ollama.service.js';
 
 export interface AiChatParams {
-  conversationId?: string;
+  /** Prior messages from the current conversation (conversational context). */
+  history: PromptHistoryMessage[];
+  /** The user message being answered. */
   message: string;
 }
 
-export interface AiChatResult {
-  reply: string;
-  conversationId: string;
+export interface AiStatusInfo {
+  running: boolean;
+  version?: string;
+  model: string;
 }
 
 /**
- * Central AI orchestration service.
+ * Central AI orchestration service (Phase 5).
  *
- * Phase 1: placeholder only. Prompt building and AI request orchestration
- * are planned for Phase 7 (AI Integration). All AI requests must stay
- * behind the backend - the frontend never talks to Ollama directly.
+ * Responsibilities:
+ * - build prompts from conversation context (prompt.builder)
+ * - send requests to Ollama (ollama.service)
+ * - translate Ollama failures into user-friendly HttpErrors
+ *
+ * Keeps Ollama isolated from controllers - controllers only ever touch
+ * this service (or the chat service), never Ollama directly.
  */
 export class AiService {
-  async chat(_params: AiChatParams): Promise<AiChatResult> {
-    throw new Error('AI service is not implemented yet (planned for Phase 7)');
+  async chat(params: AiChatParams): Promise<string> {
+    const messages = buildChat({
+      history: params.history,
+      current: { role: 'user', content: params.message },
+    });
+
+    try {
+      return await ollamaService.generate({
+        model: aiConfig.model,
+        messages,
+        temperature: aiConfig.temperature,
+        numPredict: aiConfig.numPredict,
+        numCtx: aiConfig.numCtx,
+      });
+    } catch (error) {
+      if (error instanceof OllamaTimeoutError) throw aiTimeout(error.message);
+      if (error instanceof OllamaError) throw aiUnavailable(error.message);
+      throw error;
+    }
   }
 
-  async getStatus() {
-    return ollamaService.getStatus();
+  async getStatus(): Promise<AiStatusInfo> {
+    const status = await ollamaService.getStatus();
+    return { running: status.running, version: status.version, model: aiConfig.model };
   }
 
-  async getModels() {
-    return ollamaService.getModels();
+  async getModels(): Promise<OllamaModel[]> {
+    try {
+      return await ollamaService.getModels();
+    } catch (error) {
+      if (error instanceof OllamaError) throw aiUnavailable(error.message);
+      throw error;
+    }
   }
 }
 

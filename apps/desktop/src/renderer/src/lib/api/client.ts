@@ -2,6 +2,8 @@ import { isApiSuccess } from '@syami/shared';
 import { ApiClientError } from './errors';
 import { httpClient } from './http';
 import type {
+  AiModelsInfo,
+  AiStatusInfo,
   ApiResponseEnvelope,
   ChatRequest,
   ChatResponse,
@@ -19,11 +21,14 @@ const unwrap = <T>(response: ApiResponseEnvelope<T>): T => {
   return response.data;
 };
 
+/** Local AI generation can take well over the default 10s client timeout. */
+const CHAT_TIMEOUT_MS = 120_000;
+
 /**
  * Typed API client for the Syami AI backend.
  *
- * Phase 4: health, chat, and settings endpoints are wired. AI endpoints
- * (status/models) arrive with the AI integration phase.
+ * Phase 4: health, chat, and settings endpoints are wired.
+ * Phase 5: AI endpoints (status/models) + long chat timeouts.
  */
 class ApiClient {
   async getHealth(): Promise<HealthResponse> {
@@ -32,7 +37,11 @@ class ApiClient {
   }
 
   async sendChatMessage(request: ChatRequest): Promise<ChatResponse> {
-    const { data } = await httpClient.post<ApiResponseEnvelope<ChatResponse>>('/v1/chat/message', request);
+    const { data } = await httpClient.post<ApiResponseEnvelope<ChatResponse>>(
+      '/v1/chat/message',
+      request,
+      { timeout: CHAT_TIMEOUT_MS },
+    );
     return unwrap(data);
   }
 
@@ -67,6 +76,16 @@ class ApiClient {
 
   async getSettings(): Promise<SettingsResponse> {
     const { data } = await httpClient.get<ApiResponseEnvelope<SettingsResponse>>('/v1/settings');
+    return unwrap(data);
+  }
+
+  async getAiStatus(): Promise<AiStatusInfo> {
+    const { data } = await httpClient.get<ApiResponseEnvelope<AiStatusInfo>>('/v1/ai/status');
+    return unwrap(data);
+  }
+
+  async getAiModels(): Promise<AiModelsInfo[]> {
+    const { data } = await httpClient.get<ApiResponseEnvelope<AiModelsInfo[]>>('/v1/ai/models');
     return unwrap(data);
   }
 }

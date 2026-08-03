@@ -1,10 +1,9 @@
 /**
- * Phase 4: mock reply generator.
+ * Fallback reply generator (no longer in the live chat path).
  *
- * This is the seam where Phase 7 will insert the real Ollama pipeline
- * (prompt builder -> Ollama -> formatter). The chat service only depends
- * on "generate a reply for this message", so swapping this module later
- * does not change any other code.
+ * Phase 4 used this seam to mock AI replies. Since Phase 5 the chat
+ * service calls the real AI pipeline (prompt builder -> Ollama).
+ * Kept as a documented offline fallback for tests and demos.
  */
 
 const REPLIES = [

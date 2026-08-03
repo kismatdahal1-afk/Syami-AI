@@ -65,7 +65,7 @@ docs/        Phase documentation
 - **MongoDB Atlas** - required from Phase 6. Create a free cluster and set the
   connection string as `DATABASE_URL` in `apps/server/.env`.
 - **Ollama** - required from Phase 7. Install from <https://ollama.com> and run
-  `ollama pull qwen2.5`.
+  `ollama pull qwen2.5:3b`.
 
 ## Documentation
 

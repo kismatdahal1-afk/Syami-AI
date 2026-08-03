@@ -30,9 +30,17 @@ export interface ConversationItem extends ConversationSummary {
   messages: MessageItem[];
 }
 
-export interface AiStatus {
+/** Payload from GET /v1/ai/status */
+export interface AiStatusInfo {
   running: boolean;
   version?: string;
+  model: string;
+}
+
+/** Entry from GET /v1/ai/models */
+export interface AiModelsInfo {
+  name: string;
+  size: number;
 }
 
 export interface SettingsResponse {

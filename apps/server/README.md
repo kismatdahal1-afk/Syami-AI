@@ -1,6 +1,6 @@
 # @syami/server — Syami AI Backend
 
-Express + TypeScript + MongoDB Atlas (Prisma ORM) backend for Syami AI.
+Express + TypeScript + MongoDB Atlas (Prisma ORM) + Ollama (Qwen 2.5) backend for Syami AI.
 
 ## Folder structure
 
@@ -12,12 +12,14 @@ apps/server/
 └── src/
     ├── config/
     │   ├── env.ts           Zod-validated environment variables
-    │   └── constants.ts     App name, version, API prefix/version
+    │   ├── constants.ts     App name, version, API prefix/version
+    │   └── ai.ts            Centralized AI model configuration
     ├── controllers/         Thin request/response layer (no business logic)
     ├── routes/
-    │   └── v1/              health, chat, settings routers
+    │   └── v1/              health, ai, chat, settings routers
     ├── services/            Business logic (chat, settings, health)
-    │   └── ai/reply.service.ts   Mock reply generator (future AI seam)
+    │   ├── ai/              Orchestration, prompt builder, reply fallback
+    │   └── ollama/          Ollama HTTP client + typed errors (singleton)
     ├── middleware/          errorHandler, notFound, zod validation
     ├── database/            Prisma client + connection/error mapping
     ├── utils/               ApiResponse envelope, asyncHandler, HttpError
@@ -26,6 +28,9 @@ apps/server/
     └── server.ts            Bootstrapping
 ```
 
+See `docs/AI_INTEGRATION.md` for the full AI architecture, request flow, prompt
+builder, and testing instructions.
+
 ## API flow
 
 ```
@@ -33,7 +38,7 @@ React UI (apps/desktop)
    ↓  axios → http://localhost:5000/api
 Express app
    ↓
-routes → middleware (validation) → controllers → services (Prisma) → MongoDB Atlas
+routes → middleware (validation) → controllers → services → MongoDB Atlas / Ollama
    ↓
 ApiResponse envelope: { success, message?, data } | { success:false, message, error? }
    ↑
@@ -42,8 +47,9 @@ React UI
 
 Every response follows the envelope from `API_SPECIFICATION.md`. Controllers never
 contain business logic — everything lives in services. Database connection errors are
-mapped to `503 Database unavailable` (the app degrades gracefully and the health
-endpoint reports `database.status`).
+mapped to `503 Database unavailable` and Ollama failures to friendly `503/504`
+messages (flagged `expose`, so the app degrades gracefully and the health endpoint
+reports `database.status` and `ai.status`).
 
 ## Database models
 
@@ -59,10 +65,12 @@ Relations: Conversation 1—N Message (cascade delete on conversation removal).
 
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | `/api/v1/health` | Health + database connectivity status |
+| GET | `/api/v1/health` | Health + database + AI connectivity status |
+| GET | `/api/v1/ai/status` | Ollama running, version, configured model |
+| GET | `/api/v1/ai/models` | Installed Ollama models |
 | GET | `/api/v1/chat/history` | Conversation summaries, newest first |
 | GET | `/api/v1/chat/:conversationId` | One conversation with messages |
-| POST | `/api/v1/chat/message` | Send a message; creates a conversation when no `conversationId` is given; returns `{ conversationId, reply }` (mock reply until the AI phase) |
+| POST | `/api/v1/chat/message` | Send a message; creates a conversation when no `conversationId` is given; includes prior messages as context and returns `{ conversationId, reply }` (real Qwen reply) |
 | DELETE | `/api/v1/chat/:conversationId` | Delete a conversation (cascades messages) |
 | PATCH | `/api/v1/chat/:conversationId` | Rename a conversation `{ title }` |
 | GET | `/api/v1/settings` | Application settings (stored or defaults) |
@@ -74,8 +82,10 @@ See `.env.example`. Required:
 
 - `DATABASE_URL` — MongoDB Atlas connection string (`apps/server/.env`, git-ignored)
 - `PORT` (default 5000), `CORS_ORIGINS` (comma-separated allowed origins),
-  `DB_CONNECT_ON_START` (optional eager connect; health check runs regardless),
-  `OLLAMA_BASE_URL`/`OLLAMA_MODEL` (reserved for the AI phase)
+  `DB_CONNECT_ON_START` (optional eager connect; health check runs regardless)
+- Ollama: `OLLAMA_BASE_URL` (default `http://localhost:11434`), `OLLAMA_MODEL`
+  (default `qwen2.5:3b`), `OLLAMA_TEMPERATURE`, `OLLAMA_NUM_PREDICT`, `OLLAMA_NUM_CTX`,
+  `OLLAMA_TIMEOUT_MS` — loaded centrally via `src/config/ai.ts`
 
 ## Commands
 
