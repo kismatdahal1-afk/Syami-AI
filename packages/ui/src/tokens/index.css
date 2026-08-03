@@ -178,3 +178,64 @@
     line-height: var(--leading-relaxed);
   }
 }
+
+/* Syntax highlighting (highlight.js) mapped onto design tokens.
+   Scoped to .hljs so consumers only pay for it when rendering code. */
+.hljs {
+  color: var(--color-foreground);
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-muted-foreground);
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-section {
+  color: var(--color-primary);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-template-tag,
+.hljs-addition {
+  color: var(--color-success);
+}
+
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet {
+  color: var(--color-warning);
+}
+
+.hljs-title,
+.hljs-function .hljs-title,
+.hljs-built_in,
+.hljs-type,
+.hljs-class .hljs-title {
+  color: var(--color-accent);
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--color-info);
+}
+
+.hljs-deletion {
+  color: var(--color-error);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
+}

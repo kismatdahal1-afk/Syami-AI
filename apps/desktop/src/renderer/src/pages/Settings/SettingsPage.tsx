@@ -1,22 +1,17 @@
-import { useState } from 'react';
-import { Monitor, Moon, Sun, Trash2 } from 'lucide-react';
+import { Bot, Languages, Monitor, Moon, Palette, Sun } from 'lucide-react';
 import {
   Badge,
   Button,
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   Divider,
-  Dropdown,
   Icon,
-  Input,
-  Modal,
   useTheme,
 } from '@syami/ui';
-import type { DropdownItem } from '@syami/ui';
+import { useSettingsStore } from '@/stores/settings.store';
 
 const THEME_OPTIONS = [
   { value: 'light', label: 'Light', icon: <Icon icon={Sun} size={16} /> },
@@ -24,28 +19,23 @@ const THEME_OPTIONS = [
   { value: 'system', label: 'System', icon: <Icon icon={Monitor} size={16} /> },
 ] as const;
 
+const LANGUAGE_OPTIONS = [
+  { value: 'en', label: 'English', hint: 'Default' },
+  { value: 'ne', label: 'नेपाली', hint: 'Nepali' },
+] as const;
+
+const MODEL_OPTIONS = ['qwen2.5:7b', 'qwen2.5:3b', 'qwen2.5:14b'] as const;
+
 const SettingsPage = (): React.JSX.Element => {
   const { preference, resolved, setPreference } = useTheme();
-  const [modalOpen, setModalOpen] = useState(false);
-
-  const dangerItems: DropdownItem[] = [
-    {
-      id: 'clear',
-      label: 'Clear local data',
-      description: 'Removes settings and cache',
-      variant: 'danger',
-      icon: <Icon icon={Trash2} size={16} />,
-      separatorBefore: true,
-      onClick: () => setModalOpen(true),
-    },
-  ];
+  const { settings, updateSettings } = useSettingsStore();
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Preferences are stored locally and persisted across sessions.
+          Preferences are stored locally. Backend persistence arrives with the API phase.
         </p>
       </header>
 
@@ -53,72 +43,83 @@ const SettingsPage = (): React.JSX.Element => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Choose how Syami AI looks. Theme follows the system by default.</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Icon icon={Palette} size={18} />
+            Appearance
+          </CardTitle>
+          <CardDescription>Theme follows the system by default.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap items-center gap-2">
-            {THEME_OPTIONS.map((option) => {
-              const active = preference === option.value;
-              return (
-                <Button
-                  key={option.value}
-                  variant={active ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => setPreference(option.value)}
-                >
-                  {option.icon}
-                  {option.label}
-                </Button>
-              );
-            })}
+            {THEME_OPTIONS.map((option) => (
+              <Button
+                key={option.value}
+                variant={preference === option.value ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => setPreference(option.value)}
+              >
+                {option.icon}
+                {option.label}
+              </Button>
+            ))}
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Resolved theme: <Badge variant="accent">{resolved}</Badge> · stored under{' '}
-            <code className="rounded bg-muted px-1 py-0.5">syami.theme</code>
+            Resolved: <Badge variant="accent">{resolved}</Badge>
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Data</CardTitle>
-          <CardDescription>Danger zone — these actions cannot be undone.</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Icon icon={Languages} size={18} />
+            Language
+          </CardTitle>
+          <CardDescription>Syami AI responds in English and Nepali.</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <Input placeholder="Your display name (saved locally)" disabled />
-          <div className="flex items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground">Reset everything on this device.</p>
-            <Dropdown trigger={<Icon icon={Trash2} size={16} />} items={dangerItems} />
+        <CardContent>
+          <div className="flex flex-wrap items-center gap-2">
+            {LANGUAGE_OPTIONS.map((option) => (
+              <Button
+                key={option.value}
+                variant={settings.language === option.value ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => updateSettings({ language: option.value })}
+              >
+                {option.label}
+                {option.hint && <span className="text-xs opacity-80">({option.hint})</span>}
+              </Button>
+            ))}
           </div>
         </CardContent>
-        <CardFooter>
-          <Button variant="ghost" size="sm">
-            Save
-          </Button>
-        </CardFooter>
       </Card>
 
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        title="Clear local data?"
-        description="This removes all locally stored preferences. Your conversation data lives on the server and is unaffected."
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={() => setModalOpen(false)}>
-              Clear
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-muted-foreground">
-          This <Badge variant="warning">cannot be undone</Badge>. Data will be cleared immediately.
-        </p>
-      </Modal>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon icon={Bot} size={18} />
+            AI Model
+          </CardTitle>
+          <CardDescription>Placeholder — the model list is served by the backend in the AI phase.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap items-center gap-2">
+            {MODEL_OPTIONS.map((model) => (
+              <Button
+                key={model}
+                variant={settings.preferredModel === model ? 'primary' : 'secondary'}
+                size="sm"
+                onClick={() => updateSettings({ preferredModel: model })}
+              >
+                {model}
+              </Button>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Selected: <Badge variant="primary">{settings.preferredModel ?? 'none'}</Badge>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
