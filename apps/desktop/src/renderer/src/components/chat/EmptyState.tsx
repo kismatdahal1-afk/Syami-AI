@@ -80,12 +80,12 @@ export const EmptyState = ({ onInsert }: EmptyStateProps): React.JSX.Element => 
           </motion.div>
         </motion.div>
 
-        <h2 className="font-display text-xl font-bold uppercase tracking-[0.3em] text-foreground sm:text-2xl">
+        <h2 className="font-display text-2xl font-bold uppercase tracking-[0.3em] text-foreground sm:text-3xl">
           SYAMI-<span className="text-accent">AI</span>
         </h2>
 
         <div className="text-center">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             How can I help you today?
           </h1>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
@@ -106,7 +106,7 @@ export const EmptyState = ({ onInsert }: EmptyStateProps): React.JSX.Element => 
               <button
                 type="button"
                 onClick={() => onInsert(item.prompt)}
-                className="rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors duration-200 hover:border-accent/60 hover:bg-accent-subtle/40 hover:text-accent hover:shadow-glow-accent"
+                className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition-colors duration-200 hover:border-accent/60 hover:bg-accent-subtle/40 hover:text-accent hover:shadow-glow-accent"
               >
                 {item.label}
               </button>
