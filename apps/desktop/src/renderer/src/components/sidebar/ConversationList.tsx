@@ -7,9 +7,11 @@ import type { Conversation } from '@/types/chat';
 interface ConversationListProps {
   conversations: Conversation[];
   activeConversationId: string | null;
+  pinnedIds: string[];
   onSelect: (id: string) => void;
   onRename: (id: string, title: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
+  onPin: (id: string) => void;
 }
 
 const STAGGER = 0.04;
@@ -17,9 +19,11 @@ const STAGGER = 0.04;
 export const ConversationList = ({
   conversations,
   activeConversationId,
+  pinnedIds,
   onSelect,
   onRename,
   onDelete,
+  onPin,
 }: ConversationListProps): React.JSX.Element => {
   return (
     <nav aria-label="Conversation history" className="flex flex-col gap-0.5">
@@ -48,9 +52,11 @@ export const ConversationList = ({
             <ConversationItem
               conversation={conversation}
               active={conversation.id === activeConversationId}
+              pinned={pinnedIds.includes(conversation.id)}
               onSelect={onSelect}
               onRename={onRename}
               onDelete={onDelete}
+              onPin={onPin}
             />
           </motion.div>
         ))}

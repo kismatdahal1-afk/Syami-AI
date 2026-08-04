@@ -65,7 +65,7 @@ const AppLayout = (): React.JSX.Element => {
           )
         }
       >
-        <MainContent padded={false}>
+        <MainContent padded={false} className={isChat ? 'overflow-hidden' : undefined}>
           <PageTransition animationKey={location.pathname} className="h-full">
             <Outlet />
           </PageTransition>
@@ -90,7 +90,7 @@ const AppLayout = (): React.JSX.Element => {
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
             >
-              <ChatSidebar collapsed={false} onToggle={() => setSidebarOpen(false)} />
+              <ChatSidebar collapsed={false} onToggle={() => setSidebarOpen(false)} resizable={false} />
             </motion.div>
           </>
         )}

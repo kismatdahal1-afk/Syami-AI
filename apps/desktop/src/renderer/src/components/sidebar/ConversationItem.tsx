@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
 import { cn, Dropdown, Icon } from '@syami/ui';
 import type { DropdownItem } from '@syami/ui';
 import { DeleteConversationModal } from './DeleteConversationModal';
@@ -9,17 +9,21 @@ import type { Conversation } from '@/types/chat';
 interface ConversationItemProps {
   conversation: Conversation;
   active: boolean;
+  pinned: boolean;
   onSelect: (id: string) => void;
   onRename: (id: string, title: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
+  onPin: (id: string) => void;
 }
 
 export const ConversationItem = ({
   conversation,
   active,
+  pinned,
   onSelect,
   onRename,
   onDelete,
+  onPin,
 }: ConversationItemProps): React.JSX.Element => {
   const [draft, setDraft] = useState(conversation.title);
   const [editing, setEditing] = useState(false);
@@ -43,6 +47,12 @@ export const ConversationItem = ({
         setDraft(conversation.title);
         setEditing(true);
       },
+    },
+    {
+      id: 'pin',
+      label: pinned ? 'Unpin' : 'Pin',
+      icon: <Icon icon={pinned ? PinOff : Pin} size={14} />,
+      onClick: () => onPin(conversation.id),
     },
     {
       id: 'delete',
@@ -72,6 +82,7 @@ export const ConversationItem = ({
             active
               ? 'bg-primary/10 text-foreground'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+            pinned && !active && 'bg-accent-subtle/50 hover:bg-muted',
           )}
         >
           {editing ? (
@@ -93,13 +104,18 @@ export const ConversationItem = ({
             />
           ) : (
             <span className="flex items-center justify-between gap-2">
-              <span
-                className={cn(
-                  'min-w-0 flex-1 truncate text-sm font-medium',
-                  active ? 'text-primary' : 'text-foreground',
+              <span className="flex min-w-0 items-center gap-1.5">
+                {pinned && (
+                  <Icon icon={Pin} size={12} className="shrink-0 text-accent" aria-label="Pinned" />
                 )}
-              >
-                {conversation.title}
+                <span
+                  className={cn(
+                    'min-w-0 flex-1 truncate text-sm font-medium',
+                    active ? 'text-primary' : 'text-foreground',
+                  )}
+                >
+                  {conversation.title}
+                </span>
               </span>
               <span className="shrink-0 text-[11px] text-muted-foreground">
                 {formatRelativeTime(conversation.updatedAt)}

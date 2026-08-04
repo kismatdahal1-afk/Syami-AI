@@ -17,6 +17,8 @@ export interface ModalProps {
   closeOnOverlayClick?: boolean
   showCloseButton?: boolean
   className?: string
+  /** Classes applied to the body (children) wrapper. */
+  contentClassName?: string
 }
 
 const SIZE_CLASSES: Record<ModalSize, string> = {
@@ -35,7 +37,8 @@ export const Modal = ({
   size = 'md',
   closeOnOverlayClick = true,
   showCloseButton = true,
-  className
+  className,
+  contentClassName
 }: ModalProps): React.JSX.Element | null => {
   const titleId = useId()
   const descriptionId = useId()
@@ -65,7 +68,7 @@ export const Modal = ({
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -113,7 +116,7 @@ export const Modal = ({
                 )}
               </div>
             )}
-            <div className="px-6 py-5">{children}</div>
+            <div className={cn('px-6 py-5', contentClassName)}>{children}</div>
             {footer && <div className="flex justify-end gap-2 border-t border-border px-6 py-4">{footer}</div>}
           </motion.div>
         </div>

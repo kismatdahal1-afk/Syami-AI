@@ -1,4 +1,4 @@
-import { Cpu, Menu, MoreHorizontal, Plus } from 'lucide-react';
+import { Cpu, Menu, MoreHorizontal, SquarePen } from 'lucide-react';
 import { Badge, Button, Dropdown, Icon } from '@syami/ui';
 import type { DropdownItem } from '@syami/ui';
 import { useBackendHealth } from '@/hooks/useBackendHealth';
@@ -25,7 +25,7 @@ export const ChatHeader = ({ onMenuClick }: ChatHeaderProps): React.JSX.Element 
     {
       id: 'new-chat',
       label: 'New chat',
-      icon: <Icon icon={Plus} size={16} />,
+      icon: <Icon icon={SquarePen} size={16} />,
       onClick: newChat,
     },
     {

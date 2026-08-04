@@ -10,7 +10,7 @@ interface EmptyStateProps {
 
 export const EmptyState = ({ onPrompt }: EmptyStateProps): React.JSX.Element => {
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden px-6 py-10">
+    <div className="relative flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-6 py-10">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-0 h-72 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
@@ -20,7 +20,7 @@ export const EmptyState = ({ onPrompt }: EmptyStateProps): React.JSX.Element => 
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="relative flex flex-col items-center gap-6"
+        className="relative m-auto flex flex-col items-center gap-6"
       >
         <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/12 ring-1 ring-primary/25">
           <SyamiLogo className="h-10 w-10" alt="Syami AI" />

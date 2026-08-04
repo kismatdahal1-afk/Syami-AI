@@ -30,12 +30,18 @@ const components: Components = {
   em: ({ children }) => <em className="italic">{children}</em>,
   pre: ({ children, ...rest }) => {
     const text = extractPreText(children);
+    const language = extractLanguage(children);
     return (
-      <div className="group/code relative my-3 overflow-hidden rounded-lg border border-border bg-muted/40">
+      <div className="my-3 overflow-hidden rounded-lg border border-border bg-muted/40">
+        <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/60 px-3 py-1.5">
+          <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            {language || 'code'}
+          </span>
+          {text && <CopyCodeButton text={text} className="opacity-100" />}
+        </div>
         <pre className="overflow-x-auto p-4 text-[13px] leading-relaxed" {...rest}>
           {children}
         </pre>
-        {text && <CopyCodeButton text={text} className="absolute right-2 top-2" />}
       </div>
     );
   },
@@ -76,6 +82,25 @@ const extractPreText = (node: React.ReactNode): string => {
     return extractPreText(props.children);
   }
   return '';
+};
+
+const extractLanguage = (node: React.ReactNode): string | null => {
+  if (node && typeof node === 'object' && 'props' in node) {
+    const props = (node as { props?: { className?: string | string[]; children?: React.ReactNode } }).props;
+    const className = Array.isArray(props?.className)
+      ? props.className.join(' ')
+      : (props?.className ?? '');
+    const match = className.match(/language-([\w+-]+)/);
+    if (match) return match[1];
+    return extractLanguage(props?.children);
+  }
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const found = extractLanguage(child);
+      if (found) return found;
+    }
+  }
+  return null;
 };
 
 export const MarkdownRenderer = ({ content, className }: MarkdownRendererProps): React.JSX.Element => (

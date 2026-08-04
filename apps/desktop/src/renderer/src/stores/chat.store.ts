@@ -34,18 +34,35 @@ const fromDetail = (detail: ConversationItem): Conversation => ({
   messagesLoaded: true,
 });
 
+const PIN_STORAGE_KEY = 'syami.pinned-conversations';
+
+const readPinnedIds = (): string[] => {
+  try {
+    const stored = window.localStorage.getItem(PIN_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed: unknown = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed.filter((id) => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
 interface ChatState {
   conversations: Conversation[];
   activeConversationId: string | null;
   isSending: boolean;
   isLoadingHistory: boolean;
   error: string | null;
+  pinnedIds: string[];
+  /** Incremented every time an assistant reply is appended (drives the typewriter reveal). */
+  lastReplyAt: number;
   loadHistory: () => Promise<void>;
   selectConversation: (id: string) => Promise<void>;
   newChat: () => void;
   sendMessage: (content: string) => Promise<boolean>;
   renameConversation: (id: string, title: string) => Promise<boolean>;
   deleteConversation: (id: string) => Promise<boolean>;
+  togglePin: (id: string) => void;
   clearError: () => void;
 }
 
@@ -61,6 +78,8 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   isSending: false,
   isLoadingHistory: false,
   error: null,
+  pinnedIds: readPinnedIds(),
+  lastReplyAt: 0,
 
   loadHistory: async () => {
     set({ isLoadingHistory: true, error: null });
@@ -73,6 +92,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
           state.activeConversationId && summaries.some((c) => c.id === state.activeConversationId)
             ? state.activeConversationId
             : (summaries[0]?.id ?? null),
+        pinnedIds: state.pinnedIds.filter((id) => summaries.some((c) => c.id === id)),
       }));
     } catch (error) {
       set({ isLoadingHistory: false, error: errorMessage(error) });
@@ -180,6 +200,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
           state.activeConversationId === activeConversationId
             ? serverId
             : state.activeConversationId,
+        lastReplyAt: Date.now(),
         conversations: state.conversations.map((conversation) => {
           if (conversation.id !== activeConversationId) return conversation;
           return {
@@ -262,9 +283,23 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     set({
       conversations: remaining,
       activeConversationId: nextActive,
+      pinnedIds: get().pinnedIds.filter((pinnedId) => pinnedId !== id),
       error: null,
     });
     return true;
+  },
+
+  togglePin: (id) => {
+    const { pinnedIds } = get();
+    const next = pinnedIds.includes(id)
+      ? pinnedIds.filter((pinnedId) => pinnedId !== id)
+      : [id, ...pinnedIds];
+    try {
+      window.localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Storage unavailable - pins persist for this session only
+    }
+    set({ pinnedIds: next });
   },
 
   clearError: () => set({ error: null }),
