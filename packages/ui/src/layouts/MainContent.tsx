@@ -11,7 +11,7 @@ export const MainContent = ({
   ...rest
 }: MainContentProps): React.JSX.Element => {
   return (
-    <main className={cn('min-w-0 flex-1 overflow-y-auto bg-background', padded && 'p-6', className)} {...rest}>
+    <main className={cn('min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain bg-background', padded && 'p-6', className)} {...rest}>
       {children}
     </main>
   )

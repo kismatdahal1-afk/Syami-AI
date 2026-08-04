@@ -38,7 +38,7 @@ const AppLayout = (): React.JSX.Element => {
         }
         header={
           isChat ? (
-            <ChatHeader onMenuClick={toggleSidebar} />
+            <ChatHeader />
           ) : (
             <AppHeader
               left={
@@ -47,11 +47,10 @@ const AppLayout = (): React.JSX.Element => {
                     variant="ghost"
                     size="sm"
                     iconOnly
+                    leftIcon={<Icon icon={Menu} size={18} />}
                     aria-label="Toggle sidebar"
                     onClick={toggleSidebar}
-                  >
-                    <Icon icon={Menu} size={18} />
-                  </Button>
+                  />
                   <NavLink
                     to="/chat"
                     className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"

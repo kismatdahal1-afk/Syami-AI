@@ -40,7 +40,7 @@ class ApiClient {
     const { data } = await httpClient.post<ApiResponseEnvelope<ChatResponse>>(
       '/v1/chat/message',
       request,
-      { timeout: CHAT_TIMEOUT_MS },
+      { timeout: CHAT_TIMEOUT_MS, signal: request.signal },
     );
     return unwrap(data);
   }

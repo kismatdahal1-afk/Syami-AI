@@ -77,7 +77,7 @@ export const MessageList = ({ messages, isSending }: MessageListProps): React.JS
 
   return (
     <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-6 py-6">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-6 pb-40 pt-6">
         <AnimatePresence initial={false}>
           {messages.map((message) => (
             <motion.div

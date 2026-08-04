@@ -5,6 +5,8 @@ export type HealthResponse = HealthData;
 export interface ChatRequest {
   conversationId?: string;
   message: string;
+  /** Aborts the in-flight generation request. */
+  signal?: AbortSignal;
 }
 
 export interface ChatResponse {

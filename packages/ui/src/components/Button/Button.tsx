@@ -57,7 +57,8 @@ export const Button = ({
       aria-busy={loading}
       className={cn(
         'inline-flex select-none items-center justify-center gap-2 rounded-lg font-medium',
-        'transition-colors duration-150',
+        'transition-[color,background-color,box-shadow,transform] duration-150',
+        'hover:-translate-y-px active:translate-y-0 active:scale-[0.97]',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         'disabled:pointer-events-none disabled:opacity-50',
         VARIANT_CLASSES[variant],

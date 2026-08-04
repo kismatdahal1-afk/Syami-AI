@@ -1,4 +1,5 @@
 import { Modal } from '@syami/ui';
+import { AnimatePresence, motion } from 'framer-motion';
 import { AboutPanel } from './AboutPanel';
 import { AppearancePanel } from './AppearancePanel';
 import { LanguagePanel } from './LanguagePanel';
@@ -42,12 +43,22 @@ export const SettingsDialog = ({ panel, onClose }: SettingsDialogProps): React.J
       className="flex aspect-square w-[32rem] flex-col"
       contentClassName="min-h-0 flex-1 overflow-y-auto"
     >
-      {panel === 'appearance' && <AppearancePanel />}
-      {panel === 'language' && <LanguagePanel />}
-      {panel === 'model' && <ModelPanel />}
-      {panel === 'about' && <AboutPanel />}
-      {panel === 'profile' && <ProfilePanel />}
-      {panel === 'logout' && <LogoutPanel />}
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={panel ?? 'none'}
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -8 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          {panel === 'appearance' && <AppearancePanel />}
+          {panel === 'language' && <LanguagePanel />}
+          {panel === 'model' && <ModelPanel />}
+          {panel === 'about' && <AboutPanel />}
+          {panel === 'profile' && <ProfilePanel />}
+          {panel === 'logout' && <LogoutPanel />}
+        </motion.div>
+      </AnimatePresence>
     </Modal>
   );
 };

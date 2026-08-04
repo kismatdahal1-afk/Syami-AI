@@ -15,3 +15,66 @@ body,
 body {
   @apply bg-background text-foreground antialiased;
 }
+
+/* Rotating gradient sweep used for the animated border of the chat input bar. */
+@keyframes gradient-border-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Extremely slow ambient drift for the welcome background gradient layers. */
+@keyframes ambient-drift {
+  from {
+    transform: translate3d(-1.5%, -1%, 0) rotate(-2deg);
+  }
+  to {
+    transform: translate3d(1.5%, 1%, 0) rotate(2deg);
+  }
+}
+
+/* Slow pulsing center glow behind the welcome logo. */
+@keyframes ambient-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Gentle floating motion for the welcome input card. */
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Slow vertical drift for the welcome digital data streams. */
+@keyframes stream-flow {
+  from {
+    transform: translate3d(0, -45%, 0);
+  }
+  to {
+    transform: translate3d(0, 45%, 0);
+  }
+}
+
+/* Gentle opacity pulse for the welcome neural network nodes. */
+@keyframes node-pulse {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

@@ -170,7 +170,12 @@ export const ChatSidebar = ({
             exit={{ opacity: 0, x: 10 }}
             transition={CONTENT_TRANSITION}
           >
-            <div className="flex shrink-0 items-center justify-between gap-2 px-3 pb-3 pt-3">
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.22, delay: 0.05, ease: 'easeOut' }}
+              className="flex shrink-0 items-center justify-between gap-2 px-3 pb-3 pt-3"
+            >
             <div className="flex min-w-0 items-center gap-2.5">
               <SyamiLogo className="h-8 w-8 shrink-0" alt="Syami AI" />
               <div className="min-w-0">
@@ -190,55 +195,62 @@ export const ChatSidebar = ({
             >
               <Icon icon={collapsed ? PanelLeftOpen : PanelLeftClose} size={18} />
             </button>
-          </div>
+          </motion.div>
 
-          <div className="relative shrink-0 px-3 pb-3">
-            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-              <div className="absolute -top-10 right-2 h-24 w-32 rounded-full bg-primary/15 blur-2xl" />
-              <div className="absolute -bottom-8 -left-6 h-20 w-28 rounded-full bg-accent/15 blur-2xl" />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.22, delay: 0.1, ease: 'easeOut' }}
+            className="relative flex min-h-0 flex-1 flex-col"
+          >
+            <div className="relative shrink-0 px-3 pb-3">
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div className="absolute -top-10 right-2 h-24 w-32 rounded-full bg-primary/15 blur-2xl" />
+                <div className="absolute -bottom-8 -left-6 h-20 w-28 rounded-full bg-accent/15 blur-2xl" />
+              </div>
+              <div className="relative flex flex-col gap-2.5">
+                <SearchChats
+                  ref={searchInputRef}
+                  query={query}
+                  onChange={setQuery}
+                  onClear={() => setQuery('')}
+                />
+                <NewChatButton onClick={newChat} disabled={isLoadingHistory} />
+              </div>
             </div>
-            <div className="relative flex flex-col gap-2.5">
-              <SearchChats
-                ref={searchInputRef}
-                query={query}
-                onChange={setQuery}
-                onClear={() => setQuery('')}
+
+            <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
+              <p className="px-2 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                Recent Conversations
+              </p>
+              <ConversationList
+                conversations={sorted}
+                activeConversationId={activeConversationId}
+                pinnedIds={pinnedIds}
+                onSelect={(id) => void selectConversation(id)}
+                onRename={(id, title) => renameConversation(id, title)}
+                onDelete={(id) => deleteConversation(id)}
+                onPin={(id) => togglePin(id)}
               />
-              <NewChatButton onClick={newChat} disabled={isLoadingHistory} />
             </div>
-          </div>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-3">
-            <p className="px-2 pb-1.5 pt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-              Recent Conversations
-            </p>
-            <ConversationList
-              conversations={sorted}
-              activeConversationId={activeConversationId}
-              pinnedIds={pinnedIds}
-              onSelect={(id) => void selectConversation(id)}
-              onRename={(id, title) => renameConversation(id, title)}
-              onDelete={(id) => deleteConversation(id)}
-              onPin={(id) => togglePin(id)}
-            />
-          </div>
-
-          <div className="flex shrink-0 flex-col p-2">
-            <SettingsMenu className="w-full gap-2.5 px-3 py-2 text-left" onSelect={setSettingsPanel}>
-              <span className="flex min-w-0 flex-1 items-center gap-3">
-                <span className="shrink-0 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-[2px]">
-                  <Avatar name="Local User" size="sm" className="font-semibold" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-foreground">
-                    Local User
+            <div className="flex shrink-0 flex-col p-2">
+              <SettingsMenu className="w-full gap-2.5 px-3 py-2 text-left" onSelect={setSettingsPanel}>
+                <span className="flex min-w-0 flex-1 items-center gap-3">
+                  <span className="shrink-0 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-[2px]">
+                    <Avatar name="Local User" size="sm" className="font-semibold" />
                   </span>
-                  <span className="block text-xs text-muted-foreground">This device</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-foreground">
+                      Local User
+                    </span>
+                    <span className="block text-xs text-muted-foreground">This device</span>
+                  </span>
+                  <Icon icon={ChevronUp} size={14} className="shrink-0 text-muted-foreground" />
                 </span>
-                <Icon icon={ChevronUp} size={14} className="shrink-0 text-muted-foreground" />
-              </span>
-            </SettingsMenu>
-          </div>
+              </SettingsMenu>
+            </div>
+          </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

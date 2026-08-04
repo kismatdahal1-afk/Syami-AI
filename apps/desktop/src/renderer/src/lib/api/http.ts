@@ -16,6 +16,9 @@ export const httpClient = axios.create({
 httpClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
     if (axios.isAxiosError(error)) {
       const status = error.response?.status ?? 0;
       const payload = error.response?.data;

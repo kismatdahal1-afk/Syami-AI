@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, Copy } from 'lucide-react';
-import { Button, Icon } from '@syami/ui';
+import { Check, Copy, RotateCcw } from 'lucide-react';
+import { Icon } from '@syami/ui';
 import { useTypewriter } from '@/hooks/useTypewriter';
+import { useChatStore } from '@/stores/chat.store';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { MessageContainer } from './MessageContainer';
 import type { ChatMessage } from '@/types/chat';
@@ -23,6 +24,8 @@ export const AIMessage = ({
   const typed = useTypewriter(message.content, { enabled: streaming });
   const isRevealing = streaming && typed.length < message.content.length;
   const streamEndedRef = useRef(!streaming);
+  const isSending = useChatStore((state) => state.isSending);
+  const regenerate = useChatStore((state) => state.regenerate);
 
   useEffect(() => {
     if (streaming && !isRevealing && !streamEndedRef.current) {
@@ -44,7 +47,40 @@ export const AIMessage = ({
   };
 
   return (
-    <MessageContainer role="assistant" avatarName="Syami AI" name="Syami AI" time={message.createdAt}>
+    <MessageContainer
+      role="assistant"
+      avatarName="Syami AI"
+      name="Syami AI"
+      time={message.createdAt}
+      footer={
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            disabled={isRevealing}
+            title={copied ? 'Copied' : 'Copy'}
+            aria-label={copied ? 'Copied' : 'Copy response'}
+            onClick={handleCopy}
+            className="p-1 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+          >
+            {copied ? (
+              <Icon icon={Check} size={13} className="text-success" />
+            ) : (
+              <Icon icon={Copy} size={13} />
+            )}
+          </button>
+          <button
+            type="button"
+            disabled={isRevealing || isSending}
+            title="Try again"
+            aria-label="Try again"
+            onClick={() => void regenerate()}
+            className="p-1 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+          >
+            <Icon icon={RotateCcw} size={13} />
+          </button>
+        </div>
+      }
+    >
       {isRevealing ? (
         <p className="whitespace-pre-wrap break-words">
           {typed}
@@ -56,18 +92,6 @@ export const AIMessage = ({
       ) : (
         <MarkdownRenderer content={message.content} />
       )}
-      <div className="mt-2 flex justify-end opacity-0 transition-opacity duration-150 group-hover/msg:opacity-100">
-        <Button
-          variant="ghost"
-          size="sm"
-          iconOnly
-          disabled={isRevealing}
-          aria-label={copied ? 'Copied' : 'Copy response'}
-          onClick={handleCopy}
-        >
-          {copied ? <Icon icon={Check} size={14} className="text-success" /> : <Icon icon={Copy} size={14} />}
-        </Button>
-      </div>
     </MessageContainer>
   );
 };

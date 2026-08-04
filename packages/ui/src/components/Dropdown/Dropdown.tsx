@@ -146,7 +146,7 @@ export const Dropdown = ({
                     disabled={item.disabled}
                     onClick={() => handleItemClick(item)}
                     className={cn(
-                      'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors',
+                      'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-[color,background-color,transform] active:scale-[0.98]',
                       item.disabled
                         ? 'cursor-not-allowed opacity-50'
                         : item.variant === 'danger'

@@ -12,7 +12,7 @@ interface SidebarRailProps {
 }
 
 const RAIL_BUTTON_CLASSES =
-  'relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
+  'relative flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-[color,background-color,transform] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring';
 
 export const SidebarRail = ({
   onExpand,

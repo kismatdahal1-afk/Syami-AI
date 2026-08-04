@@ -77,7 +77,7 @@ export const ConversationItem = ({
             }
           }}
           className={cn(
-            'flex w-full cursor-pointer flex-col gap-0.5 rounded-lg py-1.5 pl-3 pr-8 text-left transition-colors duration-150',
+            'flex w-full cursor-pointer flex-col gap-0.5 rounded-lg py-1.5 pl-3 pr-8 text-left transition-[color,background-color,transform] duration-150 active:scale-[0.99]',
             active
               ? 'bg-primary/10 text-foreground'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground',
