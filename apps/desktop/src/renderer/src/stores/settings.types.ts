@@ -1,6 +1,8 @@
+export type AppLanguage = 'en' | 'ne' | 'auto';
+
 export interface AppSettings {
   theme: 'light' | 'dark';
-  language: 'en' | 'ne';
+  language: AppLanguage;
   temperature: number;
   preferredModel: string | null;
 }

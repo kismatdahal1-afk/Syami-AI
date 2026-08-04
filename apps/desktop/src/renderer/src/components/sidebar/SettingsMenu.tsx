@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Cpu, Info, Languages, LogOut, Palette } from 'lucide-react';
+import { Cpu, Info, Languages, LogOut, Palette, User } from 'lucide-react';
 import { cn, Icon } from '@syami/ui';
-import type { SettingsPanel } from './SettingsDialog';
+import type { SettingsPanel } from '@/components/settings/SettingsDialog';
 
 interface SettingsMenuProps {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   label?: string;
   className?: string;
   onSelect: (panel: SettingsPanel) => void;
+  children?: React.ReactNode;
 }
 
 const MENU_ITEMS: { id: SettingsPanel; label: string; icon: React.ReactNode; danger?: boolean }[] = [
+  { id: 'profile', label: 'Profile', icon: <Icon icon={User} size={15} /> },
   { id: 'appearance', label: 'Appearance', icon: <Icon icon={Palette} size={15} /> },
   { id: 'language', label: 'Language', icon: <Icon icon={Languages} size={15} /> },
   { id: 'model', label: 'Model', icon: <Icon icon={Cpu} size={15} /> },
@@ -24,6 +26,7 @@ export const SettingsMenu = ({
   label,
   className,
   onSelect,
+  children,
 }: SettingsMenuProps): React.JSX.Element => {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -67,8 +70,12 @@ export const SettingsMenu = ({
         title={label}
         className={cn('flex items-center rounded-lg transition-colors', className)}
       >
-        {icon}
-        {label && <span>{label}</span>}
+        {children ?? (
+          <>
+            {icon}
+            {label && <span>{label}</span>}
+          </>
+        )}
       </button>
 
       {open &&
@@ -79,7 +86,7 @@ export const SettingsMenu = ({
             ref={menuRef}
             role="menu"
             style={menuStyle}
-            className="fixed z-[60] w-48 rounded-lg border border-border bg-surface p-1 shadow-elevated"
+            className="fixed z-[60] w-48 rounded-xl border border-border bg-surface-modal p-1.5 shadow-elevated"
           >
             {MENU_ITEMS.map((item) => (
               <button
@@ -91,7 +98,7 @@ export const SettingsMenu = ({
                   onSelect(item.id);
                 }}
                 className={cn(
-                  'flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm transition-colors',
+                  'flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition-colors',
                   item.danger ? 'text-error hover:bg-error-subtle' : 'text-foreground hover:bg-muted',
                 )}
               >

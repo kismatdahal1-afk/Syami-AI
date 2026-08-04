@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import { ThemeProvider } from '@syami/ui';
+import '@fontsource/space-grotesk/700.css';
 import App from './App';
 import './styles/globals.css';
 

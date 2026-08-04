@@ -1,6 +1,6 @@
 import { create } from 'zustand';
+import { smartTitle } from '@syami/shared';
 import { apiClient } from '@/lib/api';
-import { titleFromText } from '@/lib/format';
 import type { ConversationItem, ConversationSummary, MessageItem } from '@/lib/api/types';
 import type { ChatMessage, Conversation } from '@/types/chat';
 
@@ -173,7 +173,12 @@ export const useChatStore = create<ChatState>()((set, get) => ({
         return {
           ...conversation,
           updatedAt: now,
-          title: isLocalConversation ? titleFromText(trimmed) : conversation.title,
+          title:
+            isLocalConversation &&
+            conversation.messages.length === 0 &&
+            conversation.title === 'New chat'
+              ? smartTitle(trimmed)
+              : conversation.title,
           messages: [...conversation.messages, userMessage],
         };
       }),

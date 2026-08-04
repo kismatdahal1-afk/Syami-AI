@@ -82,11 +82,10 @@ export const MessageList = ({ messages, isSending }: MessageListProps): React.JS
           {messages.map((message) => (
             <motion.div
               key={message.id}
-              layout
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             >
               {message.role === 'user' ? (
                 <UserMessage message={message} />
@@ -105,10 +104,10 @@ export const MessageList = ({ messages, isSending }: MessageListProps): React.JS
           {isSending && (
             <motion.div
               key="typing"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
             >
               <MessageContainer role="assistant" avatarName="Syami AI" name="Syami AI">
                 <span className="sr-only">Syami AI is typing</span>

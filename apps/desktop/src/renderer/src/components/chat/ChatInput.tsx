@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Mic, Paperclip, Send } from 'lucide-react';
 import { Button, Icon, Tooltip } from '@syami/ui';
 import { useActiveConversation, useChatStore } from '@/stores/chat.store';
@@ -6,13 +6,30 @@ import { cn } from '@syami/ui';
 
 const MAX_HEIGHT = 160;
 
-export const ChatInput = (): React.JSX.Element => {
+export interface ChatInputHandle {
+  insertText: (text: string) => void;
+}
+
+export const ChatInput = forwardRef<ChatInputHandle>(function ChatInput(
+  _props,
+  ref,
+): React.JSX.Element {
   const active = useActiveConversation();
   const isSending = useChatStore((state) => state.isSending);
   const sendMessage = useChatStore((state) => state.sendMessage);
   const newChat = useChatStore((state) => state.newChat);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [text, setText] = useState('');
+
+  useImperativeHandle(ref, () => ({
+    insertText: (text: string) => {
+      setText((current) => (current.trim() ? `${current} ${text}` : text));
+      window.requestAnimationFrame(() => {
+        textareaRef.current?.focus();
+        autoGrow();
+      });
+    },
+  }));
 
   const trimmed = text.trim();
   const canSend = trimmed.length > 0 && !isSending;
@@ -98,4 +115,4 @@ export const ChatInput = (): React.JSX.Element => {
       </p>
     </div>
   );
-};
+});

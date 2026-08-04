@@ -17,4 +17,12 @@ export const formatMessageTime = (timestamp: number): string =>
 export const truncate = (text: string, max: number): string =>
   text.length <= max ? text : `${text.slice(0, max).trimEnd()}…`;
 
-export const titleFromText = (text: string): string => truncate(text, 44);
+const PLATFORM_NAMES: Record<string, string> = {
+  win32: 'Windows',
+  darwin: 'macOS',
+  linux: 'Linux',
+};
+
+export const platformName = (platform: string): string => PLATFORM_NAMES[platform] ?? platform;
+
+export const computerName = (): string => window.api?.hostname ?? 'Local Device';

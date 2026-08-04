@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronRight, PanelLeftClose, PanelLeftOpen, Settings } from 'lucide-react';
+import { ChevronUp, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { APP_VERSION } from '@syami/shared';
 import { Avatar, Icon } from '@syami/ui';
@@ -8,7 +8,7 @@ import { useChatStore } from '@/stores/chat.store';
 import { ConversationList } from './ConversationList';
 import { NewChatButton } from './NewChatButton';
 import { SearchChats } from './SearchChats';
-import { SettingsDialog, type SettingsPanel } from './SettingsDialog';
+import { SettingsDialog, type SettingsPanel } from '@/components/settings/SettingsDialog';
 import { SettingsMenu } from './SettingsMenu';
 import { SidebarRail } from './SidebarRail';
 
@@ -223,25 +223,21 @@ export const ChatSidebar = ({
             />
           </div>
 
-          <div className="flex shrink-0 flex-col border-t border-border p-2">
-            <SettingsMenu
-              icon={<Icon icon={Settings} size={16} />}
-              label="Settings"
-              className="w-full gap-2.5 px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
-              onSelect={setSettingsPanel}
-            />
-            <button
-              type="button"
-              onClick={() => setSettingsPanel('profile')}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted"
-            >
-              <Avatar name="Local User" size="md" status="online" />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-foreground">Local User</span>
-                <span className="block text-xs text-muted-foreground">This device</span>
+          <div className="flex shrink-0 flex-col p-2">
+            <SettingsMenu className="w-full gap-2.5 px-3 py-2 text-left" onSelect={setSettingsPanel}>
+              <span className="flex min-w-0 flex-1 items-center gap-3">
+                <span className="shrink-0 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-[2px]">
+                  <Avatar name="Local User" size="sm" className="font-semibold" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-foreground">
+                    Local User
+                  </span>
+                  <span className="block text-xs text-muted-foreground">This device</span>
+                </span>
+                <Icon icon={ChevronUp} size={14} className="shrink-0 text-muted-foreground" />
               </span>
-              <Icon icon={ChevronRight} size={14} className="text-muted-foreground" />
-            </button>
+            </SettingsMenu>
           </div>
           </motion.div>
         )}

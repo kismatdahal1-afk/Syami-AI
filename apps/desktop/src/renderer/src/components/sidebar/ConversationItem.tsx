@@ -3,7 +3,7 @@ import { MoreHorizontal, Pencil, Pin, PinOff, Trash2 } from 'lucide-react';
 import { cn, Dropdown, Icon } from '@syami/ui';
 import type { DropdownItem } from '@syami/ui';
 import { DeleteConversationModal } from './DeleteConversationModal';
-import { formatRelativeTime, truncate } from '@/lib/format';
+import { formatRelativeTime } from '@/lib/format';
 import type { Conversation } from '@/types/chat';
 
 interface ConversationItemProps {
@@ -28,7 +28,6 @@ export const ConversationItem = ({
   const [draft, setDraft] = useState(conversation.title);
   const [editing, setEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const lastMessage = conversation.messages[conversation.messages.length - 1];
 
   const commitRename = async (): Promise<void> => {
     setEditing(false);
@@ -78,7 +77,7 @@ export const ConversationItem = ({
             }
           }}
           className={cn(
-            'flex w-full cursor-pointer flex-col gap-0.5 rounded-lg py-2 pl-3 pr-8 text-left transition-colors duration-150',
+            'flex w-full cursor-pointer flex-col gap-0.5 rounded-lg py-1.5 pl-3 pr-8 text-left transition-colors duration-150',
             active
               ? 'bg-primary/10 text-foreground'
               : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -92,8 +91,13 @@ export const ConversationItem = ({
               onChange={(event) => setDraft(event.target.value)}
               onBlur={() => void commitRename()}
               onKeyDown={(event) => {
-                if (event.key === 'Enter') void commitRename();
+                event.stopPropagation();
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  void commitRename();
+                }
                 if (event.key === 'Escape') {
+                  event.preventDefault();
                   setDraft(conversation.title);
                   setEditing(false);
                 }
@@ -120,12 +124,6 @@ export const ConversationItem = ({
               <span className="shrink-0 text-[11px] text-muted-foreground">
                 {formatRelativeTime(conversation.updatedAt)}
               </span>
-            </span>
-          )}
-
-          {lastMessage && !editing && (
-            <span className="truncate text-xs text-muted-foreground">
-              {truncate(lastMessage.content, 56)}
             </span>
           )}
         </div>

@@ -1,6 +1,8 @@
 export const APP_NAME = 'Syami AI';
 export const APP_VERSION = '1.0.0';
 
+export { smartTitle } from './title.js';
+
 /**
  * Standard API response envelope defined in API_SPECIFICATION.md (Section 3).
  * Every backend endpoint must return either an ApiSuccess or ApiFailure shape.

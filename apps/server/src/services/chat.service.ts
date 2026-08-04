@@ -1,4 +1,5 @@
 import type { MessageRole } from '@prisma/client';
+import { smartTitle } from '@syami/shared';
 import { translateDbError } from '../database/connection.js';
 import { prisma } from '../database/prisma.js';
 import { notFound } from '../utils/errors.js';
@@ -9,13 +10,6 @@ import type {
   SendMessageResult,
 } from '../types/chat.js';
 import { aiService } from './ai/index.js';
-
-const TITLE_MAX = 44;
-
-const titleFromText = (text: string): string => {
-  const cleaned = text.replace(/\s+/g, ' ').trim();
-  return cleaned.length > TITLE_MAX ? `${cleaned.slice(0, TITLE_MAX).trimEnd()}…` : cleaned;
-};
 
 const serializeMessage = (message: {
   id: string;
@@ -85,7 +79,7 @@ export const sendMessage = async (input: {
 
     if (!conversationId) {
       const created = await prisma.conversation.create({
-        data: { title: titleFromText(input.message) },
+        data: { title: smartTitle(input.message) },
         select: { id: true },
       });
       conversationId = created.id;

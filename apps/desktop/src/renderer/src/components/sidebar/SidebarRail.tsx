@@ -1,7 +1,7 @@
-import { MessageSquare, PanelLeftOpen, Search, Settings, SquarePen } from 'lucide-react';
+import { MessageSquare, PanelLeftOpen, Search, SquarePen } from 'lucide-react';
 import { Avatar, cn, Icon } from '@syami/ui';
 import { SyamiLogo } from '@/components/common/SyamiLogo';
-import type { SettingsPanel } from './SettingsDialog';
+import type { SettingsPanel } from '@/components/settings/SettingsDialog';
 import { SettingsMenu } from './SettingsMenu';
 
 interface SidebarRailProps {
@@ -76,24 +76,16 @@ export const SidebarRail = ({
 
       <div className="min-h-0 flex-1" />
 
-      <div className="flex w-full flex-col items-center gap-1 border-t border-border pt-2">
+      <div className="flex w-full flex-col items-center gap-1 pt-2">
         <SettingsMenu
-          icon={<Icon icon={Settings} size={18} />}
-          className={cn(
-            RAIL_BUTTON_CLASSES,
-            'px-0 py-0 text-muted-foreground hover:bg-muted hover:text-foreground',
-          )}
+          icon={
+            <span className="shrink-0 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-[2px]">
+              <Avatar name="Local User" size="sm" className="h-5 w-5 text-[10px] font-semibold" />
+            </span>
+          }
+          className={cn(RAIL_BUTTON_CLASSES, 'px-0 py-0')}
           onSelect={onOpenPanel}
         />
-        <button
-          type="button"
-          onClick={() => onOpenPanel('profile')}
-          aria-label="Local User profile"
-          title="Local User"
-          className={cn(RAIL_BUTTON_CLASSES, 'mt-1')}
-        >
-          <Avatar name="Local User" size="sm" status="online" />
-        </button>
       </div>
     </div>
   );
