@@ -7,7 +7,14 @@ import { cn } from '@syami/ui';
 import { CopyCodeButton } from './code/CopyCodeButton';
 
 const normalizeMathDelimiters = (content: string): string =>
-  content.replace(/\\\[/g, '$$').replace(/\\\]/g, '$$').replace(/\\\(/g, '$').replace(/\\\)/g, '$');
+  content
+    .replace(/(?<!\$)\$(\d[\d,.]*)(?=\s|[.,;:!?)\]]|$)/g, '&#36;$1')
+    .replace(/^(\s*)\\\[([\s\S]*?)\\\]([ \t]*)$/gm, (_, ws, body, tail) => `${ws}$$\n${body}\n$$${tail}`)
+    .replace(/\\\[/g, '$')
+    .replace(/\\\]/g, '$')
+    .replace(/\\\(/g, '$')
+    .replace(/\\\)/g, '$')
+    .replace(/\$\$([^\n$]+)\$\$/g, (_, body) => `$$\n${body}\n$$`);
 
 interface MarkdownRendererProps {
   content: string;

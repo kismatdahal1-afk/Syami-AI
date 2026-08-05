@@ -15,6 +15,7 @@ export default defineConfig({
       alias: {
         '@': resolve('src/renderer/src'),
       },
+      dedupe: ['katex'],
     },
     optimizeDeps: {
       exclude: ['@syami/ui'],

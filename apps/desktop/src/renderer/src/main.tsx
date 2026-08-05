@@ -8,7 +8,7 @@ import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
 import '@fontsource/space-grotesk/700.css';
 import 'katex/dist/katex.min.css';
-import 'katex/dist/contrib/mhchem.min.js';
+import 'katex/dist/contrib/mhchem.mjs';
 import App from './App';
 import './styles/globals.css';
 
