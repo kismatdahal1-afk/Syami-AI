@@ -10,6 +10,8 @@ export {
   formatBranding,
 } from './branding.js';
 export type { BrandInfo } from './branding.js';
+export { DEPTH_RULES, detectDepth, formatDepthHint } from './depth-control.js';
+export type { ResponseDepth } from './depth-control.js';
 export { detectLanguage } from './language-rules.js';
 export type { DetectedLanguage } from './language-rules.js';
 export { LANGUAGE_RULES } from './language-rules.js';

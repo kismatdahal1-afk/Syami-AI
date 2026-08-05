@@ -101,10 +101,12 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     set({ isLoadingHistory: true, error: null });
     try {
       const summaries = await apiClient.getChatHistory();
+      // Fresh app open: land on the welcome page, never auto-open the last chat.
+      // An existing selection (e.g. a restore mid-session) is still preserved.
       const activeId =
         get().activeConversationId && summaries.some((c) => c.id === get().activeConversationId)
           ? get().activeConversationId
-          : (summaries[0]?.id ?? null);
+          : null;
       set((state) => ({
         conversations: summaries.map(fromSummary),
         isLoadingHistory: false,

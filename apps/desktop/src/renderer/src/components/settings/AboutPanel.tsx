@@ -8,11 +8,9 @@ const TECH_STACK = ['React', 'Electron', 'Node.js', 'MongoDB', 'Ollama'];
 export const AboutPanel = (): React.JSX.Element => (
   <div className="flex flex-col items-center gap-5 text-center">
     <div className="flex flex-col items-center gap-3">
-      <span className="flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/12 ring-1 ring-primary/25">
-        <SyamiLogo className="h-12 w-12" alt="Syami AI" />
-      </span>
+      <SyamiLogo className="h-20 w-20 rounded-none" alt="Syami AI" />
       <div>
-        <h3 className="text-xl font-semibold tracking-tight text-foreground">Syami AI</h3>
+        <h3 className="font-display text-xl font-semibold tracking-tight text-foreground">Syami AI</h3>
         <p className="mt-1 text-sm text-muted-foreground">Your Intelligent Desktop Assistant</p>
       </div>
       <Badge variant="primary">Version v{APP_VERSION}</Badge>

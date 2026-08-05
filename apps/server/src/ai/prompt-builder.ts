@@ -8,6 +8,7 @@
  * memory (already parametrized) or streaming never changes the routes.
  */
 import type { OllamaChatMessage } from '../services/ollama/ollama.service.js';
+import { detectDepth } from './depth-control.js';
 import { detectLanguage } from './language-rules.js';
 import { buildSystemPrompt } from './system-prompt.js';
 
@@ -35,7 +36,8 @@ export const buildChat = (params: BuildChatParams): OllamaChatMessage[] => {
   const messages: OllamaChatMessage[] = [];
 
   const language = detectLanguage(params.current.content);
-  const systemParts = [params.system ?? buildSystemPrompt({ language })];
+  const depth = detectDepth(params.current.content);
+  const systemParts = [params.system ?? buildSystemPrompt({ language, depth })];
 
   if (params.memory && params.memory.length > 0) {
     systemParts.push(

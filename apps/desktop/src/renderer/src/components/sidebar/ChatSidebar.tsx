@@ -18,9 +18,9 @@ const MAX_SIDEBAR_WIDTH = 400;
 const RAIL_WIDTH = 56;
 const WIDTH_STORAGE_KEY = 'syami.sidebar-width';
 
-/** Motion-design curve: expo-out feels like a spring without the bounce. */
-const SIDEBAR_TRANSITION = { type: 'tween', duration: 0.4, ease: [0.22, 1, 0.36, 1] } as const;
-const CONTENT_TRANSITION = { duration: 0.22, ease: 'easeOut' } as const;
+/** Motion-design curve: graceful glide with a soft settle — slow, buttery, no bounce. */
+const SIDEBAR_TRANSITION = { type: 'tween', duration: 0.55, ease: [0.33, 1, 0.68, 1] } as const;
+const RAIL_TRANSITION = { duration: 0.35, ease: 'easeOut' } as const;
 
 interface ChatSidebarProps {
   collapsed: boolean;
@@ -143,43 +143,26 @@ export const ChatSidebar = ({
         initial={false}
         animate={{ width: collapsed ? RAIL_WIDTH : width }}
         transition={SIDEBAR_TRANSITION}
+        style={{ willChange: 'width' }}
       >
-        <AnimatePresence initial={false}>
-          {collapsed ? (
-            <motion.div
-              key="rail"
-              className="absolute inset-0"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={CONTENT_TRANSITION}
-            >
-              <SidebarRail
-                onExpand={expand}
-                onNewChat={handleRailNewChat}
-                onSearch={handleRailSearch}
-                onOpenPanel={setSettingsPanel}
-              />
-            </motion.div>
-          ) : (
+        {/* Full sidebar — fixed width, slides out via GPU-accelerated transform (no per-frame layout of the conversation list). */}
+        <motion.div
+          className="absolute inset-y-0 left-0 flex h-full flex-col"
+          style={{ width, willChange: 'transform' }}
+          initial={false}
+          animate={{ x: collapsed ? -(width - RAIL_WIDTH) : 0, opacity: collapsed ? 0 : 1 }}
+          transition={SIDEBAR_TRANSITION}
+        >
           <motion.div
-            key="full"
-            className="absolute inset-0 flex h-full w-full flex-col"
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 10 }}
-            transition={CONTENT_TRANSITION}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, delay: 0.05, ease: 'easeOut' }}
+            className="flex shrink-0 items-center justify-between gap-2 px-3 pb-3 pt-3"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.22, delay: 0.05, ease: 'easeOut' }}
-              className="flex shrink-0 items-center justify-between gap-2 px-3 pb-3 pt-3"
-            >
             <div className="flex min-w-0 items-center gap-2.5">
               <SyamiLogo className="h-8 w-8 shrink-0" alt="Syami AI" />
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold tracking-tight text-foreground">
+                <p className="truncate font-display text-sm font-semibold tracking-tight text-foreground">
                   Syami AI Assistant
                 </p>
                 <p className="truncate text-xs text-muted-foreground">Version v{APP_VERSION}</p>
@@ -193,7 +176,18 @@ export const ChatSidebar = ({
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <Icon icon={collapsed ? PanelLeftOpen : PanelLeftClose} size={18} />
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={collapsed ? 'open' : 'close'}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.16, ease: 'easeOut' }}
+                  className="flex"
+                >
+                  <Icon icon={collapsed ? PanelLeftOpen : PanelLeftClose} size={18} />
+                </motion.span>
+              </AnimatePresence>
             </button>
           </motion.div>
 
@@ -251,24 +245,38 @@ export const ChatSidebar = ({
               </SettingsMenu>
             </div>
           </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
 
-      {resizable && !collapsed && (
-        <div
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize sidebar"
-          onPointerDown={handleResizeStart}
-          onPointerMove={handleResizeMove}
-          onPointerUp={handleResizeEnd}
-          onPointerCancel={handleResizeEnd}
-          className="absolute inset-y-0 -right-1 z-10 w-2 cursor-col-resize touch-none select-none"
+        {/* Rail — always mounted, fades in with a touch of delay for a layered reveal. */}
+        <motion.div
+          className="absolute inset-y-0 left-0 z-10 flex h-full"
+          style={{ width: RAIL_WIDTH, willChange: 'opacity' }}
+          initial={false}
+          animate={{ opacity: collapsed ? 1 : 0, pointerEvents: collapsed ? 'auto' : 'none' }}
+          transition={{ ...RAIL_TRANSITION, delay: collapsed ? 0.2 : 0 }}
         >
-          <span className="absolute inset-y-1 right-0.5 w-0.5 rounded-full bg-primary/30 opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
-        </div>
-      )}
+          <SidebarRail
+            onExpand={expand}
+            onNewChat={handleRailNewChat}
+            onSearch={handleRailSearch}
+            onOpenPanel={setSettingsPanel}
+          />
+        </motion.div>
+
+        {resizable && !collapsed && (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize sidebar"
+            onPointerDown={handleResizeStart}
+            onPointerMove={handleResizeMove}
+            onPointerUp={handleResizeEnd}
+            onPointerCancel={handleResizeEnd}
+            className="absolute inset-y-0 -right-1 z-10 w-2 cursor-col-resize touch-none select-none"
+          >
+            <span className="absolute inset-y-1 right-0.5 w-0.5 rounded-full bg-primary/30 opacity-0 transition-opacity duration-150 group-hover:opacity-100" />
+          </div>
+        )}
       </motion.aside>
 
       <SettingsDialog panel={settingsPanel} onClose={() => setSettingsPanel(null)} />

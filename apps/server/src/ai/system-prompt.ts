@@ -6,6 +6,7 @@
  * itself as Syami AI and never as the underlying model.
  */
 import { formatBranding } from './branding.js';
+import { formatDepthHint, type ResponseDepth } from './depth-control.js';
 import { LANGUAGE_RULES } from './language-rules.js';
 import type { DetectedLanguage } from './language-rules.js';
 import { PERSONALITY_INSTRUCTIONS } from './syami-personality.js';
@@ -19,6 +20,8 @@ export const FUTURE_FEATURES = [
 export interface SystemPromptOptions {
   /** Language hint (en/ne/mixed) detected from the current message. */
   language?: DetectedLanguage;
+  /** Response-depth hint detected from the current message. */
+  depth?: ResponseDepth;
 }
 
 export const buildSystemPrompt = (options: SystemPromptOptions = {}): string => {
@@ -49,6 +52,10 @@ export const buildSystemPrompt = (options: SystemPromptOptions = {}): string => 
 
   if (options.language && options.language !== 'en') {
     blocks.push('', `LANGUAGE HINT: the current message appears to be ${options.language === 'ne' ? 'Nepali' : 'a mix of Nepali and English'} — reply accordingly.`);
+  }
+
+  if (options.depth) {
+    blocks.push('', formatDepthHint(options.depth));
   }
 
   return blocks.join('\n');

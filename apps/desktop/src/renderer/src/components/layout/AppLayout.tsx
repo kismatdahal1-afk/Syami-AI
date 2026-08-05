@@ -53,7 +53,7 @@ const AppLayout = (): React.JSX.Element => {
                   />
                   <NavLink
                     to="/chat"
-                    className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary"
+                    className="flex items-center gap-2 font-display text-sm font-medium text-foreground hover:text-primary"
                   >
                     <SyamiLogo className="h-6 w-6" alt="Syami AI" />
                     {APP_NAME}
@@ -87,7 +87,7 @@ const AppLayout = (): React.JSX.Element => {
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+              transition={{ type: 'tween', duration: 0.45, ease: [0.33, 1, 0.68, 1] }}
             >
               <ChatSidebar collapsed={false} onToggle={() => setSidebarOpen(false)} resizable={false} />
             </motion.div>

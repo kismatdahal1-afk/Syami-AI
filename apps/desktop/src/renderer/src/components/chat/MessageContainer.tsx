@@ -39,7 +39,7 @@ export const MessageContainer = ({
       >
         {(name || time !== undefined) && (
           <p className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
-            {name && <span className="font-medium text-foreground">{name}</span>}
+            {name && <span className="font-display font-medium text-foreground">{name}</span>}
             {time !== undefined && <span>{formatMessageTime(time)}</span>}
           </p>
         )}
@@ -47,7 +47,7 @@ export const MessageContainer = ({
           className={cn(
             'min-w-0 rounded-2xl text-sm leading-relaxed',
             isUser
-              ? 'rounded-br-md border border-primary/15 bg-primary/10 px-4 py-2.5 text-foreground shadow-sm'
+              ? 'rounded-br-md border border-primary/15 bg-primary/10 px-4 py-2.5 text-foreground shadow-sm dark:border-primary/30 dark:bg-primary/20'
               : 'rounded-bl-md border border-border bg-surface px-4 py-3 shadow-sm',
             className
           )}

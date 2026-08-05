@@ -74,7 +74,7 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
           : 'relative pb-2 pt-6'
       )}
     >
-      <div className="pointer-events-auto relative mx-auto max-w-3xl rounded-2xl p-px shadow-lg shadow-black/5">
+      <div className="pointer-events-auto relative mx-auto max-w-3xl rounded-2xl p-px shadow-xl shadow-black/10 transition-shadow duration-200 dark:shadow-black/50">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
           {animated ? (
             <div
@@ -85,12 +85,12 @@ export const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(function Ch
               }}
             />
           ) : (
-            <div className="absolute inset-0 rounded-2xl bg-border/50" />
+            <div className="absolute inset-0 rounded-2xl bg-border/80" />
           )}
         </div>
         <div
           className={cn(
-            'relative flex items-end gap-2 rounded-[15px] bg-background p-2 pl-4',
+            'relative flex items-end gap-2 rounded-[15px] bg-background p-2 pl-4 dark:bg-surface/70',
             'transition-all duration-200',
             'focus-within:shadow-glow-primary'
           )}

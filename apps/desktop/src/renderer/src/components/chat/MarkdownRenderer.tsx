@@ -1,8 +1,13 @@
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
 import { cn } from '@syami/ui';
 import { CopyCodeButton } from './code/CopyCodeButton';
+
+const normalizeMathDelimiters = (content: string): string =>
+  content.replace(/\\\[/g, '$$').replace(/\\\]/g, '$$').replace(/\\\(/g, '$').replace(/\\\)/g, '$');
 
 interface MarkdownRendererProps {
   content: string;
@@ -105,8 +110,12 @@ const extractLanguage = (node: React.ReactNode): string | null => {
 
 export const MarkdownRenderer = ({ content, className }: MarkdownRendererProps): React.JSX.Element => (
   <div className={cn('text-sm text-foreground', className)}>
-    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={components}>
-      {content}
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={[rehypeKatex({ errorColor: 'var(--color-muted-foreground)' }), rehypeHighlight]}
+      components={components}
+    >
+      {normalizeMathDelimiters(content)}
     </ReactMarkdown>
   </div>
 );

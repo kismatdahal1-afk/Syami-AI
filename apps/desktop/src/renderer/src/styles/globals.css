@@ -78,3 +78,32 @@ body {
     opacity: 0.5;
   }
 }
+
+/* ---- KaTeX math rendering overrides ---- */
+
+/* Inherit the theme text color (dark-mode safe) and scale with message text. */
+.katex {
+  color: inherit;
+}
+
+/* Display equations: centered, scrollable when wider than the bubble, spaced to
+   match the paragraph rhythm (p uses my-2 / leading-relaxed). */
+.katex-display {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.125rem 0;
+  scrollbar-width: thin;
+}
+
+/* Inline math never overflows; allow wrapping at the text level instead. */
+.katex-inline {
+  color: inherit;
+}
+
+/* KaTeX error fallback (throwOnError: false) keeps the raw source readable. */
+.katex-error {
+  color: var(--color-muted-foreground);
+}
+

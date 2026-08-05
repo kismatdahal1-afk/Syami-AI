@@ -78,10 +78,8 @@ export const CyberBackground = (): React.JSX.Element => (
       }}
     />
     <div
-      className="absolute inset-0"
+      className="absolute inset-0 bg-[linear-gradient(to_right,rgba(99,102,241,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(99,102,241,0.10)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(34,211,238,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(34,211,238,0.05)_1px,transparent_1px)]"
       style={{
-        backgroundImage:
-          'linear-gradient(to right, rgba(34, 211, 238, 0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(34, 211, 238, 0.05) 1px, transparent 1px)',
         backgroundSize: '48px 48px',
         maskImage: 'radial-gradient(ellipse 80% 65% at 50% 40%, black 15%, transparent 78%)',
         WebkitMaskImage:

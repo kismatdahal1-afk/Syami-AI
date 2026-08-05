@@ -22,7 +22,7 @@ const unwrap = <T>(response: ApiResponseEnvelope<T>): T => {
 };
 
 /** Local AI generation can take well over the default 10s client timeout. */
-const CHAT_TIMEOUT_MS = 120_000;
+const CHAT_TIMEOUT_MS = 300_000;
 
 /**
  * Typed API client for the Syami AI backend.
