@@ -9,12 +9,10 @@ import { CopyCodeButton } from './code/CopyCodeButton';
 const normalizeMathDelimiters = (content: string): string =>
   content
     .replace(/(?<!\$)\$(\d[\d,.]*)(?=\s|[.,;:!?)\]]|$)/g, '&#36;$1')
-    .replace(/^(\s*)\\\[([\s\S]*?)\\\]([ \t]*)$/gm, (_, ws, body, tail) => `${ws}$$\n${body}\n$$${tail}`)
-    .replace(/\\\[/g, '$')
-    .replace(/\\\]/g, '$')
-    .replace(/\\\(/g, '$')
-    .replace(/\\\)/g, '$')
-    .replace(/\$\$([^\n$]+)\$\$/g, (_, body) => `$$\n${body}\n$$`);
+    .replace(/^([ \t]*)\\\[([\s\S]*?)\\\]([ \t]*)$/gm, (_, indent, body, tail) => `${indent}$$\n${indent}${body.trim()}\n${indent}$$${tail}`)
+    .replace(/\\\[([\s\S]*?)\\\]/g, (_, body) => `$${body.trim()}$`)
+    .replace(/\\\(([\s\S]*?)\\\)/g, (_, body) => `$${body.trim()}$`)
+    .replace(/^([ \t]*)\$\$([^\n$]+)\$\$/gm, (_, indent, body) => `${indent}$$\n${indent}${body.trim()}\n${indent}$$`);
 
 interface MarkdownRendererProps {
   content: string;
@@ -119,7 +117,7 @@ export const MarkdownRenderer = ({ content, className }: MarkdownRendererProps):
   <div className={cn('text-sm text-foreground', className)}>
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex({ errorColor: 'var(--color-muted-foreground)' }), rehypeHighlight]}
+      rehypePlugins={[[rehypeKatex, { errorColor: 'var(--color-muted-foreground)' }], rehypeHighlight]}
       components={components}
     >
       {normalizeMathDelimiters(content)}
